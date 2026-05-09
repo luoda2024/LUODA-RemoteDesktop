@@ -437,7 +437,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       final isToUpdate = (isWindows || isMacOS) && bind.mainIsInstalled();
       String btnText = isToUpdate ? 'Update' : 'Download';
       GestureTapCallback onPressed = () async {
-        final Uri url = Uri.parse('https://rustdesk.com/download');
+        final Uri url = Uri.parse('https://dicad.cn/download');
         await launchUrl(url);
       };
       if (isToUpdate) {
@@ -461,14 +461,15 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     }
 
     if (isWindows && !bind.isDisableInstallation()) {
-      if (!bind.mainIsInstalled()) {
+      // Installation prompt removed for LUODA
+      if (false && !bind.mainIsInstalled()) {
         return buildInstallCard(
             "", bind.isOutgoingOnly() ? "" : "install_tip", "Install",
             () async {
           await rustDeskWinManager.closeAllSubWindows();
           bind.mainGotoInstall();
         });
-      } else if (bind.mainIsInstalledLowerVersion()) {
+      } else if (false && bind.mainIsInstalledLowerVersion()) {
         return buildInstallCard(
             "Status", "Your installation is lower version.", "Click to upgrade",
             () async {
@@ -530,7 +531,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
             marginTop: LinuxCards.isEmpty ? 20.0 : 5.0,
             help: 'Help',
             link:
-                'https://rustdesk.com/docs/en/client/linux/#permissions-issue',
+                'https://dicad.cn/docs/en/client/linux/#permissions-issue',
             closeButton: true,
             closeOption: keyShowSelinuxHelpTip,
           ));
@@ -541,13 +542,13 @@ class _DesktopHomePageState extends State<DesktopHomePage>
             "Warning", "wayland_experiment_tip", "", () async {},
             marginTop: LinuxCards.isEmpty ? 20.0 : 5.0,
             help: 'Help',
-            link: 'https://rustdesk.com/docs/en/client/linux/#x11-required'));
+            link: 'https://dicad.cn/docs/en/client/linux/#x11-required'));
       } else if (bind.mainIsLoginWayland()) {
         LinuxCards.add(buildInstallCard("Warning",
             "Login screen using Wayland is not supported", "", () async {},
             marginTop: LinuxCards.isEmpty ? 20.0 : 5.0,
             help: 'Help',
-            link: 'https://rustdesk.com/docs/en/client/linux/#login-screen'));
+            link: 'https://dicad.cn/docs/en/client/linux/#login-screen'));
       }
       if (LinuxCards.isNotEmpty) {
         return Column(

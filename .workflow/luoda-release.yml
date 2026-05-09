@@ -1,0 +1,78 @@
+version: '1.0'
+name: luoda-release
+displayName: LUODA Release Build
+stages:
+  - stage: 
+    name: prepare
+    displayName: 准备环境
+    steps:
+      - step: tool@install
+        name: install_tools
+        displayName: 安装工具
+        tool:
+          - name: flutter
+            version: '3.16'
+          - name: rust
+            version: '1.75'
+          - name: nodejs
+            version: '16'
+            
+  - stage: 
+    name: build_windows
+    displayName: Windows 构建
+    steps:
+      - step: script@shell
+        name: build_windows_exe
+        displayName: 构建 Windows EXE
+        script: |
+          #!/bin/bash
+          echo "Building LUODA for Windows..."
+          python3 build.py --flutter --release
+        artifacts:
+          - name: LUODA_WINDOWS
+            path:
+              - ./target/release/luoda.exe
+              
+  - stage: 
+    name: build_android
+    displayName: Android 构建
+    steps:
+      - step: build@flutter
+        name: build_android_apk
+        displayName: 构建 Android APK
+        flutterVersion: '3.16'
+        script: |
+          #!/bin/bash
+          cd flutter
+          flutter pub get
+          flutter build apk --release
+        artifacts:
+          - name: LUODA_ANDROID
+            path:
+              - ./flutter/build/app/outputs/flutter-apk/app-release.apk
+              
+  - stage: 
+    name: build_linux
+    displayName: Linux 构建
+    steps:
+      - step: script@shell
+        name: build_linux_deb
+        displayName: 构建 DEB 包
+        script: |
+          #!/bin/bash
+          echo "Building LUODA for Linux..."
+          cargo build --release
+          # DEB 打包需要额外脚本
+        artifacts:
+          - name: LUODA_LINUX
+            path:
+              - ./target/release/luoda
+
+triggers:
+  push:
+    branches:
+      include:
+        - master
+    tags:
+      include:
+        - "v*"
