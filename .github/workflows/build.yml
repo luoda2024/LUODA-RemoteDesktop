@@ -26,8 +26,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
           fetch-depth: 0
+      
+      - name: Setup Git for Submodules
+        run: |
+          git config --global url."https://".insteadOf "git://"
+          git config --global http.postBuffer 524288000
+        shell: bash
+      
+      - name: Update Submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth 1 --force
+        shell: bash
+        timeout-minutes: 20
       
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -47,8 +59,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
           fetch-depth: 0
+      
+      - name: Setup Git for Submodules
+        run: |
+          git config --global url."https://".insteadOf "git://"
+          git config --global http.postBuffer 524288000
+      
+      - name: Update Submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth 1 --force
+        timeout-minutes: 20
       
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -85,8 +107,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
           fetch-depth: 0
+      
+      - name: Setup Git for Submodules
+        run: |
+          git config --global url."https://".insteadOf "git://"
+          git config --global http.postBuffer 524288000
+      
+      - name: Update Submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth 1 --force
+        timeout-minutes: 20
       
       - name: Install Dependencies
         run: |
