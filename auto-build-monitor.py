@@ -18,8 +18,8 @@ from datetime import datetime
 
 # 配置
 GITEE_TOKEN = "1b95687a02f7a7e30776af59bdf5826d"
-OWNER = "soulemo_1_0"
-REPO = "rustdesk146"
+OWNER = "soulemo_1"
+REPO = "dicad"
 BASE_URL = "https://gitee.com/api/v5"
 
 class Colors:
