@@ -4,8 +4,6 @@ on:
   push:
     branches: [master, main]
     tags: ['v*']
-  pull_request:
-    branches: [master, main]
   workflow_dispatch:
     inputs:
       build_type:
@@ -21,106 +19,41 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: 1
 
 jobs:
-  # ========== Windows Build ==========
   build-windows:
     runs-on: windows-latest
-    if: github.event_name != 'pull_request' || github.event.inputs.build_type == 'all' || github.event.inputs.build_type == 'windows'
-    
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
-          fetch-depth: 1
-      
-      - name: Init Submodules
-        run: |
-          git config --global url."https://github.com/".insteadOf "https://github.com/"
-          git submodule update --init --recursive --depth 1
-        shell: bash
+          submodules: true
+          fetch-depth: 0
       
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
       
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.16.0'
-          channel: 'stable'
-      
-      - name: Check Versions
-        run: |
-          rustc --version
-          cargo --version
-          node --version
-          flutter --version
+      - name: Build
+        run: cargo build --release --features flutter
         shell: bash
       
-      - name: Build Windows EXE
-        run: |
-          cargo build --release --features flutter
-        shell: bash
-      
-      - name: Upload Windows EXE
+      - name: Upload EXE
         uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: luoda-windows-exe
           path: target/release/rustdesk.exe
-          retention-days: 30
-      
-      - name: Upload Windows DLLs
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: luoda-windows-dlls
-          path: |
-            target/release/*.dll
-          retention-days: 30
-          if-no-files-found: ignore
 
-  # ========== Android Build ==========
   build-android:
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || github.event.inputs.build_type == 'all' || github.event.inputs.build_type == 'android'
-    
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
-          fetch-depth: 1
-      
-      - name: Init Submodules
-        run: |
-          git config --global url."https://github.com/".insteadOf "https://github.com/"
-          git submodule update --init --recursive --depth 1
-        shell: bash
+          submodules: true
+          fetch-depth: 0
       
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          targets: armv7-linux-androideabi,aarch64-linux-android,i686-linux-android,x86_64-linux-android
-      
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.16.0'
-          channel: 'stable'
+          targets: armv7-linux-androideabi,aarch64-linux-android
       
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -131,165 +64,43 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
       
-      - name: Check Versions
-        run: |
-          rustc --version
-          flutter --version
-          java -version
-        shell: bash
-      
-      - name: Build Android APK
-        run: |
-          cd flutter
-          flutter clean
-          flutter pub get
-          flutter build apk --release
-        shell: bash
-      
-      - name: Upload Android APK
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: luoda-android-apk
-          path: flutter/build/app/outputs/flutter-apk/*.apk
-          retention-days: 30
-
-  # ========== Linux Build ==========
-  build-linux:
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || github.event.inputs.build_type == 'all' || github.event.inputs.build_type == 'linux'
-    
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 1
-      
-      - name: Init Submodules
-        run: |
-          git config --global url."https://github.com/".insteadOf "https://github.com/"
-          git submodule update --init --recursive --depth 1
-        shell: bash
-      
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            clang cmake protobuf-compiler \
-            libxcb1-dev libxcb-render0-dev libxcb-shape0-dev \
-            libxcb-xfixes0-dev libxfixes-dev libxrender-dev \
-            libx11-dev libxi-dev libxrandr-dev libxtst-dev \
-            libpam0g-dev libdbus-1-dev libgtk-3-dev \
-            libwayland-dev libgles2-mesa-dev libdrm-dev libgbm-dev
-        shell: bash
-      
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-      
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.16.0'
-          channel: 'stable'
       
-      - name: Check Versions
+      - name: Build APK
         run: |
-          rustc --version
-          cargo --version
-          flutter --version
-        shell: bash
+          cd flutter
+          flutter build apk --release
       
-      - name: Build Linux Binary
-        run: |
-          cargo build --release --features flutter
-        shell: bash
-      
-      - name: Create DEB Package
-        run: |
-          mkdir -p packaging/deb/luoda/usr/bin
-          mkdir -p packaging/deb/luoda/usr/share/applications
-          mkdir -p packaging/deb/luoda/usr/share/icons/hicolor/512x512/apps
-          
-          cp target/release/rustdesk packaging/deb/luoda/usr/bin/luoda
-          
-          cat > packaging/deb/luoda/usr/share/applications/luoda.desktop << 'EOF'
-          [Desktop Entry]
-          Version=1.0
-          Type=Application
-          Name=LUODA Remote Desktop
-          Exec=/usr/bin/luoda
-          Icon=luoda
-          Categories=Utility;RemoteAccess;
-          EOF
-          
-          cp res/icon-512.png packaging/deb/luoda/usr/share/icons/hicolor/512x512/apps/luoda.png 2>/dev/null || true
-          
-          cat > packaging/deb/DEBIAN/control << 'EOF'
-          Package: luoda
-          Version: 1.0.0
-          Architecture: amd64
-          Maintainer: LUODA Team
-          Description: LUODA Remote Desktop
-          EOF
-          
-          dpkg-deb --build packaging/deb/luoda luoda.deb
-        shell: bash
-      
-      - name: Upload Linux Binary
+      - name: Upload APK
         uses: actions/upload-artifact@v4
-        if: always()
+        with:
+          name: luoda-android-apk
+          path: flutter/build/app/outputs/flutter-apk/*.apk
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+      
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake protobuf-compiler libxcb1-dev
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Build
+        run: cargo build --release --features flutter
+      
+      - name: Upload Binary
+        uses: actions/upload-artifact@v4
         with:
           name: luoda-linux-binary
           path: target/release/rustdesk
-          retention-days: 30
-      
-      - name: Upload Linux DEB
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: luoda-linux-deb
-          path: luoda.deb
-          retention-days: 30
-          if-no-files-found: ignore
-
-  # ========== Release (on tag) ==========
-  create-release:
-    runs-on: ubuntu-latest
-    needs: [build-windows, build-android, build-linux]
-    if: startsWith(github.ref, 'refs/tags/v')
-    
-    steps:
-      - name: Download Windows EXE
-        uses: actions/download-artifact@v4
-        with:
-          name: luoda-windows-exe
-          path: release/
-      
-      - name: Download Android APK
-        uses: actions/download-artifact@v4
-        with:
-          name: luoda-android-apk
-          path: release/
-      
-      - name: Download Linux Binary
-        uses: actions/download-artifact@v4
-        with:
-          name: luoda-linux-binary
-          path: release/
-      
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: release/*
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
