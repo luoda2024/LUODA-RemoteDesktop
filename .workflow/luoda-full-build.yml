@@ -1,0 +1,191 @@
+version: '1.0'
+name: luoda-full-build
+displayName: LUODA 完整构建 (EXE/MSI/APK/DEB)
+stages:
+  - stage: 
+    name: prepare
+    displayName: 准备环境
+    steps:
+      - step: tool@install
+        name: install_tools
+        displayName: 安装工具
+        tool:
+          - name: flutter
+            version: '3.16'
+          - name: rust
+            version: '1.75'
+          - name: nodejs
+            version: '16'
+          - name: java
+            version: '11'
+      - step: script@shell
+        name: check_environment
+        displayName: 检查环境
+        script: |
+          #!/bin/bash
+          echo "=== 环境检查 ==="
+          echo "Flutter 版本:"
+          flutter --version
+          echo "Rust 版本:"
+          rustc --version
+          echo "Cargo 版本:"
+          cargo --version
+          echo "Java 版本:"
+          java -version
+          echo "当前目录:"
+          pwd
+          ls -la
+          
+  - stage: 
+    name: build_windows
+    displayName: Windows 构建 (EXE + MSI)
+    steps:
+      - step: script@shell
+        name: build_windows_exe_msi
+        displayName: 构建 Windows EXE 和 MSI
+        script: |
+          #!/bin/bash
+          set -e
+          echo "=== 开始构建 Windows 版本 ==="
+          echo "构建时间：$(date)"
+          echo "版本信息:"
+          grep "^version" Cargo.toml
+          
+          # Flutter 构建
+          echo "Flutter 构建..."
+          cd flutter
+          flutter pub get
+          flutter config --enable-windows-desktop
+          cd ..
+          
+          # Rust 构建
+          echo "Rust 构建..."
+          cargo build --release
+          
+          # 运行 Python 构建脚本
+          echo "运行构建脚本..."
+          python3 build.py --flutter --release
+          
+          # 检查构建产物
+          echo "检查构建产物..."
+          ls -lh target/release/*.exe 2>/dev/null || echo "未找到 EXE 文件"
+          ls -lh target/release/*.msi 2>/dev/null || echo "未找到 MSI 文件"
+          
+        artifacts:
+          - name: LUODA_WINDOWS_EXE
+            path:
+              - ./target/release/luoda.exe
+          - name: LUODA_WINDOWS_MSI
+            path:
+              - ./target/release/*.msi
+              
+  - stage: 
+    name: build_android
+    displayName: Android 构建 (APK)
+    steps:
+      - step: script@shell
+        name: build_android_apk
+        displayName: 构建 Android APK
+        script: |
+          #!/bin/bash
+          set -e
+          echo "=== 开始构建 Android 版本 ==="
+          echo "构建时间：$(date)"
+          
+          cd flutter
+          flutter pub get
+          flutter config --enable-android
+          
+          # 接受 Android 许可证
+          yes | flutter doctor --android-licenses 2>/dev/null || true
+          
+          # 构建 APK
+          echo "构建 Release APK..."
+          flutter build apk --release
+          
+          # 检查构建产物
+          echo "检查 APK 文件..."
+          ls -lh build/app/outputs/flutter-apk/*.apk 2>/dev/null || echo "未找到 APK 文件"
+          cd ..
+          
+        artifacts:
+          - name: LUODA_ANDROID_APK
+            path:
+              - ./flutter/build/app/outputs/flutter-apk/app-release.apk
+              
+  - stage: 
+    name: build_linux
+    displayName: Linux 构建 (DEB)
+    steps:
+      - step: script@shell
+        name: build_linux_deb
+        displayName: 构建 DEB 包
+        script: |
+          #!/bin/bash
+          set -e
+          echo "=== 开始构建 Linux 版本 ==="
+          echo "构建时间：$(date)"
+          
+          # Rust 构建
+          echo "Rust 构建..."
+          cargo build --release
+          
+          # 创建 DEB 包
+          echo "创建 DEB 包..."
+          python3 build.py --deb
+          
+          # 检查构建产物
+          echo "检查 DEB 文件..."
+          ls -lh *.deb 2>/dev/null || echo "未找到 DEB 文件"
+          
+        artifacts:
+          - name: LUODA_LINUX_DEB
+            path:
+              - ./*.deb
+          - name: LUODA_LINUX_BIN
+            path:
+              - ./target/release/luoda
+
+  - stage: 
+    name: summary
+    displayName: 构建总结
+    steps:
+      - step: script@shell
+        name: build_summary
+        displayName: 输出构建总结
+        script: |
+          #!/bin/bash
+          echo "=========================================="
+          echo "        LUODA 构建完成总结"
+          echo "=========================================="
+          echo "构建时间：$(date)"
+          echo "版本号：$(grep '^version' Cargo.toml | head -1)"
+          echo ""
+          echo "Windows 产物:"
+          ls -lh target/release/luoda.exe 2>/dev/null || echo "  - 未生成"
+          ls -lh target/release/*.msi 2>/dev/null || echo "  - 未生成"
+          echo ""
+          echo "Android 产物:"
+          ls -lh flutter/build/app/outputs/flutter-apk/*.apk 2>/dev/null || echo "  - 未生成"
+          echo ""
+          echo "Linux 产物:"
+          ls -lh *.deb 2>/dev/null || echo "  - 未生成"
+          echo "=========================================="
+
+triggers:
+  push:
+    branches:
+      include:
+        - master
+      exclude:
+        - docs/**
+    tags:
+      include:
+        - "v*"
+  pull_request:
+    branches:
+      include:
+        - master
+  manual:
+    # 支持手动触发
+    - run_build
