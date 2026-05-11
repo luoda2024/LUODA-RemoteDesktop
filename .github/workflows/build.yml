@@ -238,7 +238,7 @@ jobs:
 
       - name: Build Rust library for Android
         run: |
-          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o flutter/android/app/src/main/jniLibs build --release --features flutter --features load_dsp --features mediacodec
+          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o flutter/android/app/src/main/jniLibs build --release --features flutter --features use_dasp --features mediacodec
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
