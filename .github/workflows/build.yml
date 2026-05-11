@@ -233,6 +233,31 @@ jobs:
           ndk-version: r26d
           add-to-path: true
 
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk --version 2.11.0 --locked
+
+      - name: Build Rust library for Android
+        run: |
+          cd flutter
+          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o android/app/src/main/jniLibs build --release --features flutter --features load_dsp --features mediacodec
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+          BINDGEN_EXTRA_CLANG_ARGS_armv7-linux-androideabi: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/arm-android/include"
+          BINDGEN_EXTRA_CLANG_ARGS_aarch64-linux-android: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/arm64-android/include"
+          BINDGEN_EXTRA_CLANG_ARGS_x86_64-linux-android: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/x64-android/include"
+          BINDGEN_EXTRA_CLANG_ARGS_i686-linux-android: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/x86-android/include"
+
+      - name: Flutter pub get
+        run: |
+          cd flutter
+          flutter pub get
+
+      - name: Generate Flutter Rust Bridge code
+        run: |
+          cd flutter
+          flutter pub run build_runner build --delete-conflicting-outputs
+
       - name: Build APK
         run: |
           cd flutter
