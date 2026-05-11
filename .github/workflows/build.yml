@@ -242,6 +242,7 @@ jobs:
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+          OPENSSL_NO_VENDOR: "1"
           BINDGEN_EXTRA_CLANG_ARGS_armv7-linux-androideabi: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/arm-android/include"
           BINDGEN_EXTRA_CLANG_ARGS_aarch64-linux-android: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/arm64-android/include"
           BINDGEN_EXTRA_CLANG_ARGS_x86_64-linux-android: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/x64-android/include"
