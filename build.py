@@ -407,8 +407,7 @@ def build_flutter_dmg(version, features):
         system2(
             f'MACOSX_DEPLOYMENT_TARGET=10.14 cargo build --features {features} --release')
     # copy dylib
-    system2(
-        "cp target/release/liblibrustdesk.dylib target/release/librustdesk.dylib")
+    # dylib is now libluoda.dylib, no need to copy
     os.chdir('flutter')
     system2('flutter build macos --release')
     system2('cp -rf ../target/release/service ./build/macos/Build/Products/Release/RustDesk.app/Contents/MacOS/')
@@ -426,7 +425,7 @@ def build_flutter_arch_manjaro(version, features):
     ffi_bindgen_function_refactor()
     os.chdir('flutter')
     system2('flutter build linux --release')
-    system2(f'strip {flutter_build_dir}/lib/librustdesk.so')
+    system2(f'strip {flutter_build_dir}/lib/libluoda.so')
     os.chdir('../res')
     system2('HBB=`pwd`/.. FLUTTER=1 makepkg -f')
 
@@ -434,7 +433,7 @@ def build_flutter_arch_manjaro(version, features):
 def build_flutter_windows(version, features, skip_portable_pack):
     if not skip_cargo:
         system2(f'cargo build --features {features} --lib --release')
-        if not os.path.exists("target/release/librustdesk.dll"):
+        if not os.path.exists("target/release/luoda.dll"):
             print("cargo build failed, please check rust source code.")
             exit(-1)
     os.chdir('flutter')
