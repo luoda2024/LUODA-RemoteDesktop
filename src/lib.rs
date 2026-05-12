@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+mod android_opus_stub;
 mod keyboard;
 /// cbindgen:ignore
 pub mod platform;
