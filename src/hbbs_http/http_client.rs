@@ -19,7 +19,7 @@ macro_rules! configure_http_client {
         match $tls_type {
             TlsType::Plain => {}
             TlsType::NativeTls => {
-                builder = builder.use_native_tls();
+                builder = builder.use_rustls_tls();
                 if $danger_accept_invalid_cert {
                     builder = builder.danger_accept_invalid_certs(true);
                 }
