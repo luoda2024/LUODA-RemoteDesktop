@@ -226,7 +226,7 @@ jobs:
 
       - name: Install vcpkg Android dependencies
         run: |
-          for TRIPLET in arm64-android arm-android x64-android x86-android; do
+          for TRIPLET in arm64-android x64-android; do
             echo "Installing vcpkg packages for $TRIPLET..."
             VCPKG_DEFAULT_TRIPLET=$TRIPLET ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }} $VCPKG_ROOT/vcpkg install --x-install-root="$VCPKG_ROOT/installed"
           done
@@ -236,7 +236,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: "1.75"
-          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android,i686-linux-android
+          targets: aarch64-linux-android,x86_64-linux-android
 
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
@@ -250,15 +250,11 @@ jobs:
           VCPKG=${{ env.VCPKG_ROOT }}
           OUT=flutter/android/app/src/main/jniLibs
 
-          for TARGET_ABI in arm64-v8a armeabi-v7a x86_64; do
+          for TARGET_ABI in arm64-v8a x86_64; do
             case $TARGET_ABI in
               arm64-v8a)
                 RUST_TARGET=aarch64-linux-android
                 VCPKG_TRIPLET=arm64-android
-                ;;
-              armeabi-v7a)
-                RUST_TARGET=armv7-linux-androideabi
-                VCPKG_TRIPLET=arm-android
                 ;;
               x86_64)
                 RUST_TARGET=x86_64-linux-android
