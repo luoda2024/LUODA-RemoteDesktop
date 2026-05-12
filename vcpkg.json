@@ -25,6 +25,11 @@
       "platform": "android"
     },
     {
+      "name": "openssl",
+      "host": false,
+      "platform": "android"
+    },
+    {
       "name": "opus",
       "host": true
     },

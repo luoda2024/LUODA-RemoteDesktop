@@ -219,7 +219,10 @@ jobs:
 
       - name: Install vcpkg Android dependencies
         run: |
-          $VCPKG_ROOT/vcpkg install opus:arm64-android opus:arm-android opus:x64-android opus:x86-android libvpx:arm64-android libvpx:arm-android libvpx:x64-android libvpx:x86-android openssl:arm64-android openssl:arm-android openssl:x64-android openssl:x86-android --x-install-root="$VCPKG_ROOT/installed"
+          for TRIPLET in arm64-android arm-android x64-android x86-android; do
+            echo "Installing vcpkg packages for $TRIPLET..."
+            VCPKG_DEFAULT_TRIPLET=$TRIPLET $VCPKG_ROOT/vcpkg install --x-install-root="$VCPKG_ROOT/installed"
+          done
         shell: bash
 
       - name: Setup Rust
