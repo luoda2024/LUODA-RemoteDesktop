@@ -265,6 +265,8 @@ jobs:
             echo "Building for $TARGET_ABI ($RUST_TARGET)..."
 
             BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
+            CFLAGS="-isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
+            CXXFLAGS="-isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
             cargo ndk -t $TARGET_ABI -o $OUT build --release --features flutter --features use_dasp --features mediacodec --target $RUST_TARGET
           done
         env:
