@@ -15,7 +15,10 @@
 use super::*;
 #[cfg(not(any(target_os = "linux", target_os = "android")))]
 use hbb_common::anyhow::anyhow;
+#[cfg(not(target_os = "android"))]
 use magnum_opus::{Application::*, Channels::*, Encoder};
+#[cfg(target_os = "android")]
+use crate::android_opus_stub::{Application::*, Channels::*, Encoder};
 use std::sync::atomic::{AtomicBool, Ordering};
 
 pub const NAME: &'static str = "audio";
@@ -389,7 +392,7 @@ mod cpal_impl {
         config: &cpal::SupportedStreamConfig,
         sp: GenericService,
         sample_rate: u32,
-        encode_channel: magnum_opus::Channels,
+        encode_channel: Channels,
     ) -> ResultType<cpal::Stream>
     where
         T: cpal::SizedSample + dasp::sample::ToSample<f32>,
