@@ -217,6 +217,17 @@ jobs:
           $VCPKG_ROOT/vcpkg install --x-install-root="$VCPKG_ROOT/installed"
         shell: bash
 
+      - name: Install vcpkg Android dependencies
+        run: |
+          $VCPKG_ROOT/vcpkg install opus:arm64-android opus:arm-android opus:x64-android opus:x86-android libvpx:arm64-android libvpx:arm-android libvpx:x64-android libvpx:x86-android openssl:arm64-android openssl:arm-android openssl:x64-android openssl:x86-android --x-install-root="$VCPKG_ROOT/installed"
+        shell: bash
+
+      - name: Download OpenSSL prebuilt for Android
+        run: |
+          curl -L https://github.com/KDAB/android_openssl/archive/refs/heads/master.tar.gz -o openssl.tar.gz
+          tar xzf openssl.tar.gz
+        shell: bash
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -238,14 +249,37 @@ jobs:
 
       - name: Build Rust library for Android
         run: |
-          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o flutter/android/app/src/main/jniLibs build --release --features flutter --features use_dasp --features mediacodec
+          NDK=${{ steps.setup-ndk.outputs.ndk-path }}
+          VCPKG=${{ env.VCPKG_ROOT }}
+          OUT=flutter/android/app/src/main/jniLibs
+
+          for TARGET_ABI in arm64-v8a armeabi-v7a x86_64; do
+            case $TARGET_ABI in
+              arm64-v8a)
+                RUST_TARGET=aarch64-linux-android
+                VCPKG_TRIPLET=arm64-android
+                ;;
+              armeabi-v7a)
+                RUST_TARGET=armv7-linux-androideabi
+                VCPKG_TRIPLET=arm-android
+                ;;
+              x86_64)
+                RUST_TARGET=x86_64-linux-android
+                VCPKG_TRIPLET=x64-android
+                ;;
+            esac
+
+            echo "Building for $TARGET_ABI ($RUST_TARGET)..."
+
+            BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
+            OPENSSL_DIR=$VCPKG/installed/$VCPKG_TRIPLET \
+            OPENSSL_LIB_DIR=$VCPKG/installed/$VCPKG_TRIPLET/lib \
+            OPENSSL_INCLUDE_DIR=$VCPKG/installed/$VCPKG_TRIPLET/include \
+            cargo ndk -t $TARGET_ABI -o $OUT build --release --features flutter --features use_dasp --features mediacodec --target $RUST_TARGET
+          done
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
-          BINDGEN_EXTRA_CLANG_ARGS_armv7-linux-androideabi: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/arm-android/include"
-          BINDGEN_EXTRA_CLANG_ARGS_aarch64-linux-android: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/arm64-android/include"
-          BINDGEN_EXTRA_CLANG_ARGS_x86_64-linux-android: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/x64-android/include"
-          BINDGEN_EXTRA_CLANG_ARGS_i686-linux-android: "--sysroot=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem ${{ env.VCPKG_ROOT }}/installed/x86-android/include"
 
       - name: Flutter pub get
         run: |
