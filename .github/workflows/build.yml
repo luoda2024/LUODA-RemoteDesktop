@@ -244,11 +244,31 @@ jobs:
       - name: Install cargo-ndk
         run: cargo install cargo-ndk --version 2.11.0 --locked
 
+      - name: Setup opus headers for Android build
+        run: |
+          # 手动下载 opus 头文件到标准位置，避免 vcpkg 路径问题
+          OPUS_INCLUDE=$(pwd)/target/opus-include/opus
+          mkdir -p $OPUS_INCLUDE
+
+          # 从官方仓库下载头文件
+          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus.h -O $OPUS_INCLUDE/opus.h
+          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_multistream.h -O $OPUS_INCLUDE/opus_multistream.h
+          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_defines.h -O $OPUS_INCLUDE/opus_defines.h
+          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_types.h -O $OPUS_INCLUDE/opus_types.h
+          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_projection.h -O $OPUS_INCLUDE/opus_projection.h
+
+          echo "=== 下载的 opus 头文件 ==="
+          ls -la $OPUS_INCLUDE/
+
+          # 设置环境变量供后续步骤使用
+          echo "OPUS_INCLUDE_PATH=$(pwd)/target/opus-include" >> $GITHUB_ENV
+
       - name: Build Rust library for Android
         run: |
           NDK=${{ steps.setup-ndk.outputs.ndk-path }}
           VCPKG=${{ env.VCPKG_ROOT }}
           OUT=flutter/android/app/src/main/jniLibs
+          OPUS_INCLUDE=${{ env.OPUS_INCLUDE_PATH }}
 
           for TARGET_ABI in arm64-v8a x86_64; do
             case $TARGET_ABI in
@@ -264,9 +284,9 @@ jobs:
 
             echo "Building for $TARGET_ABI ($RUST_TARGET)..."
 
-            BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
-            CFLAGS="-isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
-            CXXFLAGS="-isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
+            BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot -I$OPUS_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
+            CFLAGS="-I$OPUS_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
+            CXXFLAGS="-I$OPUS_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
             cargo ndk -t $TARGET_ABI -o $OUT build --release --features flutter --features use_dasp --features mediacodec --target $RUST_TARGET
           done
         env:
