@@ -15,17 +15,17 @@ pub mod android_opus_stub {
     pub enum Application {
         Voip,
         Audio,
-        RestrictedLowDelay,
+        LowDelay,
     }
 
     pub struct Decoder {
         channels: Channels,
-        sample_rate: i32,
+        sample_rate: u32,
     }
 
     pub struct Encoder {
         channels: Channels,
-        sample_rate: i32,
+        sample_rate: u32,
         application: Application,
     }
 
@@ -65,7 +65,7 @@ pub mod android_opus_stub {
     pub type Result<T> = std::result::Result<T, Error>;
 
     impl Decoder {
-        pub fn new(sample_rate: i32, channels: Channels) -> Result<Self> {
+        pub fn new(sample_rate: u32, channels: Channels) -> Result<Self> {
             Ok(Decoder {
                 channels,
                 sample_rate,
@@ -91,7 +91,7 @@ pub mod android_opus_stub {
     }
 
     impl Encoder {
-        pub fn new(sample_rate: i32, channels: Channels, application: Application) -> Result<Self> {
+        pub fn new(sample_rate: u32, channels: Channels, application: Application) -> Result<Self> {
             Ok(Encoder {
                 channels,
                 sample_rate,
@@ -112,6 +112,16 @@ pub mod android_opus_stub {
 
         pub fn encode_float(&mut self, _input: &[f32], _output: &mut [u8]) -> Result<usize> {
             Err(Error::Unimplemented)
+        }
+
+        pub fn encode_vec_float(&mut self, _input: &[f32], max_size: usize) -> Result<Vec<u8>> {
+            // Return minimal opus-like packet for Android stub
+            let mut output = vec![0u8; max_size.min(2)];
+            if output.len() >= 2 {
+                output[0] = 0xF8;
+                output[1] = 0xFF;
+            }
+            Ok(output)
         }
 
         pub fn set_bitrate(&mut self, _bitrate: i32) -> Result<()> {
