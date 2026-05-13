@@ -122,7 +122,7 @@ class PlatformFFI {
         : isLinux
             ? DynamicLibrary.open('libluoda.so')
             : isWindows
-                ? DynamicLibrary.open('librustdesk.dll')
+                ? DynamicLibrary.open('luoda.dll')
                 :
                 // Use executable itself as the dynamic library for MacOS.
                 // Multiple dylib instances will cause some global instances to be invalid.
