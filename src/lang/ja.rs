@@ -277,7 +277,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Open System Setting", "システム設定を開く"),
         ("How to get Android input permission?", "Android の入力権限を取得するには？"),
         ("android_input_permission_tip1", "この Android デバイスをリモートコンピューターからマウスやタッチで操作するには、RustDesk に「ユーザー補助」からサービスの使用を許可する必要があります。"),
-        ("android_input_permission_tip2", "次の端末設定ページに進み、「インストール済みアプリ」から「RustDesk Input」を有効にしてください。"),
+        ("android_input_permission_tip2", "次の端末設定ページに進み、「インストール済みアプリ」から「LUODA Input」を有効にしてください。"),
         ("android_new_connection_tip", "新しい操作リクエストが届きました。この端末を操作しようとしています。"),
         ("android_service_will_start_tip", "「画面キャプチャ」を有効にするとサービスが自動的に開始され、他の端末がこの端末への接続をリクエストできるようになります。"),
         ("android_stop_service_tip", "サービスを停止すると、自動的に現在のセッションがすべて閉じられます。"),
