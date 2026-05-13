@@ -50,6 +50,20 @@ var svg_menu = <svg #menu viewBox="0 0 512 512">
 	<circle cx="256" cy="448" r="64"/>
 	<circle cx="256" cy="64" r="64"/>
 </svg>;
+var svg_theme_dark = <svg #theme-toggle .theme-btn viewBox="0 0 24 24" width="18" height="18">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+</svg>;
+var svg_theme_light = <svg #theme-toggle .theme-btn viewBox="0 0 24 24" width="18" height="18">
+    <circle cx="12" cy="12" r="5" fill="currentColor"/>
+    <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"/>
+    <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"/>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"/>
+    <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"/>
+    <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"/>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"/>
+</svg>;
 var svg_refresh_password = <svg #refresh-password xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38"/></svg>;
 
 var my_id = handler.get_id();
@@ -85,7 +99,8 @@ class ConnectStatus: Reactor.Component {
             return translate('connecting_status');
         }
         if (!handler.using_public_server()) return translate('Ready');
-        return <span>{translate("Ready")}, <span .link #setup-server>{translate("setup_server_tip")}</span></span>;
+        var server = configOptions["custom-rendezvous-server"] || configOptions["rendezvous-server"] || "rustdesk.dicad.cn";
+        return <span>{translate("Ready")}, <span .link #setup-server style="color:color(light-text);text-decoration:none;cursor:default;">{server}</span></span>;
     }
 
     event click $(#start-service) () {
@@ -505,6 +520,7 @@ class MyIdMenu: Reactor.Component {
     function render() {
         return <div #myid>
             {this.renderPop()}
+            {handler.get_option("allow-darktheme") == "Y" ? svg_theme_dark : svg_theme_light}
             ID{svg_menu}
         </div>;
     }
@@ -555,6 +571,13 @@ class MyIdMenu: Reactor.Component {
         this.showSettingMenu();
     }
 
+    event click $(svg#theme-toggle) () {
+        var is_dark = handler.get_option("allow-darktheme") == "Y";
+        handler.set_option("allow-darktheme", is_dark ? "" : "Y");
+        updateTheme();
+        this.update();
+    }
+
     function showSettingMenu() {
         audioInputMenu.update({ show: true });
         this.toggleMenuState();
@@ -602,7 +625,7 @@ class MyIdMenu: Reactor.Component {
             <div>Fingerprint: " + handler.get_fingerprint() + " \
             <div .link .custom-event url='https://rustdesk.com/privacy.html'>" + translate("Privacy Statement") + "</div> \
             <div .link .custom-event url='https://rustdesk.com'>" + translate("Website") + "</div> \
-	    <div style='background: #2c8cff; color: white; padding: 1em; margin-top: 1em;'>Copyright &copy; 2025 Purslane Ltd.\
+	    <div style='background: #2a84ba; color: white; padding: 1em; margin-top: 1em;'>Copyright &copy; 2025 Purslane Ltd.\
             <br />" + handler.get_license() + " \
             <p style='font-weight: bold'>" + translate("Slogan_tip") + "</p>\
             </div>\
