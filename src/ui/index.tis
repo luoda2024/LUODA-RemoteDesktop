@@ -99,8 +99,9 @@ class ConnectStatus: Reactor.Component {
             return translate('connecting_status');
         }
         if (!handler.using_public_server()) return translate('Ready');
-        var server = configOptions["custom-rendezvous-server"] || configOptions["rendezvous-server"] || "rustdesk.dicad.cn";
-        return <span>{translate("Ready")}, <span .link #setup-server style="color:color(light-text);text-decoration:none;cursor:default;">{server}</span></span>;
+        var server_raw = configOptions["rendezvous_server"] || "";
+        var server = server_raw.split(",")[0] || configOptions["custom-rendezvous-server"] || "";
+        return <span>{translate("Ready")}, {server ? <span .link #setup-server style="color:color(light-text);text-decoration:none;cursor:default;">{server}</span> : ""}</span>;
     }
 
     event click $(#start-service) () {
@@ -108,7 +109,7 @@ class ConnectStatus: Reactor.Component {
     }
 
     event click $(#setup-server) () {
-        handler.open_url("https://rustdesk.com/blog/id-relay-set/");
+        // LUODA: no external URL
     }
 }
 
@@ -558,10 +559,10 @@ class MyIdMenu: Reactor.Component {
                 <li #logout>{translate('Logout')} ({accountLabel})</li> :
                 <li #login>{translate('Login')}</li>)}
                 {!disable_change_id && !disable_settings && handler.is_ok_change_id() && key_confirmed && connect_status > 0 ? <li #change-id>{translate('Change ID')}</li> : ""}
-                <div .separator />
+                    <div .separator />
                 <li #allow-darktheme><span>{svg_checkmark}</span>{translate('Dark Theme')}</li>
                 <Languages />
-                {disable_installation ? "" : <li #allow-auto-update><span>{svg_checkmark}</span>{translate('Auto update')}</li>} 
+                {false && disable_installation ? "" : <li #allow-auto-update><span>{svg_checkmark}</span>{translate('Auto update')}</li>}
                 <li #about>{translate('About')} {" "}{handler.get_app_name()}</li>
             </menu>
         </popup>;
@@ -623,8 +624,8 @@ class MyIdMenu: Reactor.Component {
         msgbox("custom-nocancel-nook-hasclose", translate("About") + " " + name, "<div style='line-height: 2em'> \
             <div>Version: " + handler.get_version() + " \
             <div>Fingerprint: " + handler.get_fingerprint() + " \
-            <div .link .custom-event url='https://rustdesk.com/privacy.html'>" + translate("Privacy Statement") + "</div> \
-            <div .link .custom-event url='https://rustdesk.com'>" + translate("Website") + "</div> \
+            <div .link .custom-event url=''>" + translate("Privacy Statement") + "</div> \
+            <div .link .custom-event url=''>" + translate("Website") + "</div> \
 	    <div style='background: #2a84ba; color: white; padding: 1em; margin-top: 1em;'>Copyright &copy; 2025 Purslane Ltd.\
             <br />" + handler.get_license() + " \
             <p style='font-weight: bold'>" + translate("Slogan_tip") + "</p>\
@@ -856,10 +857,10 @@ class UpdateMe: Reactor.Component {
     }
 
     event click $(#install-me) {
-        handler.open_url("https://rustdesk.com/download");
+        // LUODA: no external download URL
         return;
         if (!is_win) {
-            handler.open_url("https://rustdesk.com");
+            // LUODA: no external URL
             return;
         }
         var url = software_update_url + '.' + handler.get_software_ext();
@@ -1365,7 +1366,7 @@ event change $(#msgbox input[name='confirmation']) {
 $(body).content(<div style="size:*"><App /><div #msgbox /></div>);
 
 event click $(#powered-by) {
-    handler.open_url("https://rustdesk.com");
+    // LUODA: no external URL
 }
 
 event click $(#open-settings) (_, me) {
@@ -1469,7 +1470,8 @@ function checkConnectStatus() {
             app.update();
         }
         tmp = handler.get_software_update_url();
-        if (tmp != software_update_url) {
+        // disabled: no auto update
+        if (false && tmp != software_update_url) {
             software_update_url = tmp;
             app.update();
         }

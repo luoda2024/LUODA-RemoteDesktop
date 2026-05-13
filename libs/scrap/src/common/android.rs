@@ -57,14 +57,22 @@ pub struct PixelBuffer<'a> {
 
 impl<'a> PixelBuffer<'a> {
     pub fn new(data: &'a [u8], width: usize, height: usize) -> Self {
-        let stride0 = data.len() / height;
-        let mut stride = Vec::new();
-        stride.push(stride0);
+        if height == 0 || width == 0 || data.is_empty() {
+            return PixelBuffer {
+                data,
+                width,
+                height,
+                stride: vec![0],
+            };
+        }
+        // Android ImageReader: row stride may be padded. Use actual buffer size / height.
+        // Ensure stride is at least width * 4 for RGBA/BGRA.
+        let stride0 = (data.len() / height).max(width * 4);
         PixelBuffer {
             data,
             width,
             height,
-            stride,
+            stride: vec![stride0],
         }
     }
 }
@@ -87,7 +95,7 @@ impl<'a> crate::TraitPixelBuffer for PixelBuffer<'a> {
     }
 
     fn pixfmt(&self) -> Pixfmt {
-        Pixfmt::RGBA
+        Pixfmt::BGRA // Android ImageReader RGBA_8888 is actually BGRA in memory
     }
 }
 

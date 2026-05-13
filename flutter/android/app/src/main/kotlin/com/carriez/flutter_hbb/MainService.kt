@@ -341,6 +341,12 @@ class MainService : Service() {
                     mediaProjectionManager.getMediaProjection(Activity.RESULT_OK, it)
                 checkMediaPermission()
                 _isReady = true
+                // If capture was started but VirtualDisplay creation failed (e.g. single-app mode),
+                // retry with the new full MediaProjection
+                if (_isStart && virtualDisplay == null) {
+                    Log.d(logTag, "Retrying VirtualDisplay creation with new MediaProjection")
+                    retryVirtualDisplay()
+                }
             } ?: let {
                 Log.d(logTag, "getParcelableExtra intent null, invoke requestMediaProjection")
                 requestMediaProjection()
@@ -404,16 +410,20 @@ class MainService : Service() {
     }
 
     fun startCapture(): Boolean {
-        if (isStart) {
-            return true
+        if (isStart && virtualDisplay != null) {
+            return true  // Already capturing with a valid VirtualDisplay
         }
         if (mediaProjection == null) {
             Log.w(logTag, "startCapture fail,mediaProjection is null")
             return false
         }
         
-        updateScreenInfo(resources.configuration.orientation)
-        Log.d(logTag, "Start Capture")
+        if (!isStart) {
+            updateScreenInfo(resources.configuration.orientation)
+            Log.d(logTag, "Start Capture")
+        } else {
+            Log.d(logTag, "Retry Capture (VirtualDisplay was null)")
+        }
         surface = createSurface()
 
         if (useVP9) {
@@ -435,6 +445,20 @@ class MainService : Service() {
         FFI.setFrameRawEnable("video",true)
         MainActivity.rdClipboardManager?.setCaptureStarted(_isStart)
         return true
+    }
+
+    /// Retry creating VirtualDisplay when mediaProjection was re-granted after a failed capture attempt.
+    private fun retryVirtualDisplay() {
+        if (mediaProjection == null || surface == null) {
+            Log.w(logTag, "retryVirtualDisplay failed: mediaProjection or surface is null")
+            return
+        }
+        Log.d(logTag, "retryVirtualDisplay: recreating VirtualDisplay")
+        if (useVP9) {
+            startVP9VideoRecorder(mediaProjection!!)
+        } else {
+            startRawVideoRecorder(mediaProjection!!)
+        }
     }
 
     @Synchronized
@@ -540,10 +564,14 @@ class MainService : Service() {
                 it.setSurface(s)
             } ?: let {
                 virtualDisplay = mp.createVirtualDisplay(
-                    "RustDeskVD",
+                    "LUODA",
                     SCREEN_INFO.width, SCREEN_INFO.height, SCREEN_INFO.dpi, VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                     s, null, null
                 )
+                if (virtualDisplay == null) {
+                    Log.e(logTag, "createVirtualDisplay returned null! MediaProjection may be in single-app mode. Requesting full projection.")
+                    requestMediaProjection()
+                }
             }
         } catch (e: SecurityException) {
             Log.w(logTag, "createOrSetVirtualDisplay: got SecurityException, re-requesting confirmation");
