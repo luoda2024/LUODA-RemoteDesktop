@@ -377,7 +377,7 @@ class _AppIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 4.0),
-      child: loadIcon(30),
+      child: loadIcon(45),
     );
   }
 }
