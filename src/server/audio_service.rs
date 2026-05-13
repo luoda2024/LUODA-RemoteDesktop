@@ -15,9 +15,9 @@
 use super::*;
 #[cfg(not(any(target_os = "linux", target_os = "android")))]
 use hbb_common::anyhow::anyhow;
-#[cfg(not(target_os = "android"))]
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 use magnum_opus::{Application::*, Channels, Channels::*, Encoder};
-#[cfg(target_os = "android")]
+#[cfg(any(target_os = "android", target_os = "ios"))]
 use crate::android_opus_stub::{Application::*, Channels, Channels::*, Encoder};
 use std::sync::atomic::{AtomicBool, Ordering};
 

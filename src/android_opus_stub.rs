@@ -1,7 +1,7 @@
 // Android opus stub implementation
 // This is a minimal stub for Android builds to avoid the system opus dependency
 
-#[cfg(target_os = "android")]
+#[cfg(any(target_os = "android", target_os = "ios"))]
 pub mod android_opus_stub {
     use std::fmt;
 
@@ -138,10 +138,10 @@ pub mod android_opus_stub {
     }
 }
 
-// Re-export our stub implementation for Android
-#[cfg(target_os = "android")]
+// Re-export our stub implementation for Android and iOS
+#[cfg(any(target_os = "android", target_os = "ios"))]
 pub use android_opus_stub::*;
 
-// For non-Android platforms, use the real magnum-opus
-#[cfg(not(target_os = "android"))]
+// For non-mobile platforms, use the real magnum-opus
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 pub use magnum_opus::*;

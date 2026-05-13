@@ -10,9 +10,9 @@ use cpal::{
     Device, Host, StreamConfig,
 };
 use crossbeam_queue::ArrayQueue;
-#[cfg(not(target_os = "android"))]
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 use magnum_opus::{Channels::*, Decoder as AudioDecoder};
-#[cfg(target_os = "android")]
+#[cfg(any(target_os = "android", target_os = "ios"))]
 use crate::android_opus_stub::{Channels::*, Decoder as AudioDecoder};
 #[cfg(not(target_os = "linux"))]
 use ringbuf::{ring_buffer::RbBase, Rb};
