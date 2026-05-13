@@ -207,7 +207,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    height: 25,
+                    height: 32,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +215,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                         Text(
                           translate("ID"),
                           style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 16,
                               color: Theme.of(context)
                                   .textTheme
                                   .titleLarge
@@ -238,10 +238,11 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                         readOnly: true,
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.only(top: 10, bottom: 10),
+                          contentPadding: EdgeInsets.only(top: 14, bottom: 14),
                         ),
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
                         ),
                       ).workaroundFreezeLinuxMint(),
                     ),
@@ -304,7 +305,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         children: [
           Container(
             width: 2,
-            height: 52,
+            height: 60,
             decoration: BoxDecoration(color: MyTheme.accent),
           ),
           Expanded(
@@ -316,7 +317,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                   AutoSizeText(
                     translate("One-time Password"),
                     style: TextStyle(
-                        fontSize: 14, color: textColor?.withOpacity(0.5)),
+                        fontSize: 16, color: textColor?.withOpacity(0.5)),
                     maxLines: 1,
                   ),
                   Row(
@@ -336,9 +337,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               contentPadding:
-                                  EdgeInsets.only(top: 14, bottom: 10),
+                                  EdgeInsets.only(top: 16, bottom: 14),
                             ),
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                           ).workaroundFreezeLinuxMint(),
                         ),
                       ),

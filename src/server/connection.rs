@@ -375,7 +375,7 @@ impl Connection {
             raii::ControlPermissionsID::new(id, &control_permissions);
         let hash = Hash {
             salt: Config::get_salt(),
-            challenge: Config::get_auto_password(6),
+            challenge: Config::get_auto_password(4),
             ..Default::default()
         };
         let (tx_from_cm_holder, mut rx_from_cm) = mpsc::unbounded_channel::<ipc::Data>();

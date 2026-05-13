@@ -140,13 +140,22 @@ span.clear-input:hover {
 }
 
 .your-desktop input[type=text] {
-    padding: 0;
+    padding: 0.3em 0;
     border: none;
-    height: 1.5em;
+    height: 2.2em;
+    font-size: 1.6em;
+    font-weight: bold;
 }
 
 .your-desktop > div {
     color: color(light-text);
+}
+
+div.eye-area > input[type=text] {
+    font-size: 1.3em;
+    font-weight: bold;
+    height: 1.8em;
+    padding: 0.2em 0;
 }
 
 .right-pane {

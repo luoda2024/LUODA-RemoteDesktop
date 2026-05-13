@@ -1039,6 +1039,7 @@ class TemporaryPasswordLengthMenu: Reactor.Component {
         self.timer(1ms, function() { me.toggleMenuState() });
         return <li>{translate("One-time password length")}
             <menu #temporary-password-length>
+                <li #temporary-password-length-4><span>{svg_checkmark}</span>4</li>
                 <li #temporary-password-length-6><span>{svg_checkmark}</span>6</li>
                 <li #temporary-password-length-8><span>{svg_checkmark}</span>8</li>
                 <li #temporary-password-length-10><span>{svg_checkmark}</span>10</li>
@@ -1049,7 +1050,7 @@ class TemporaryPasswordLengthMenu: Reactor.Component {
     function toggleMenuState() {
         var is_opt_fixed = handler.is_option_fixed('temporary-password-length');
         var length = handler.get_option("temporary-password-length");
-        var index = ['6', '8', '10'].indexOf(length);
+        var index = ['4', '6', '8', '10'].indexOf(length);
         if (index < 0) index = 0;
         for (var (i, el) in this.$$(menu#temporary-password-length>li)) {
             el.attributes.toggleClass("selected", i == index);
