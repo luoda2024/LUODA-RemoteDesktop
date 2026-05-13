@@ -16,9 +16,9 @@ use super::*;
 #[cfg(not(any(target_os = "linux", target_os = "android")))]
 use hbb_common::anyhow::anyhow;
 #[cfg(not(target_os = "android"))]
-use magnum_opus::{Application::*, Channels::*, Encoder};
+use magnum_opus::{Application::*, Channels, Channels::*, Encoder};
 #[cfg(target_os = "android")]
-use crate::android_opus_stub::{Application::*, Channels::*, Encoder};
+use crate::android_opus_stub::{Application::*, Channels, Channels::*, Encoder};
 use std::sync::atomic::{AtomicBool, Ordering};
 
 pub const NAME: &'static str = "audio";
