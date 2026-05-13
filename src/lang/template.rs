@@ -299,7 +299,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Failed to turn off", ""),
         ("Turned off", ""),
         ("Language", ""),
-        ("Keep RustDesk background service", ""),
+        ("Keep LUODA background service", ""),
         ("Ignore Battery Optimizations", ""),
         ("android_open_battery_optimizations_tip", ""),
         ("Start on boot", ""),

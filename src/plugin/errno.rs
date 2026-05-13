@@ -28,7 +28,7 @@ pub const ERR_CALL_CONFIG_VALUE: i32 = 10303;
 pub const ERR_NOT_HANDLED: i32 = 10401;
 
 // ======================================================
-// Errors from RustDesk callbacks.
+// Errors from LUODA callbacks.
 
 pub const ERR_CALLBACK_HANDLE_BASE: i32 = 20000;
 pub const ERR_CALLBACK_PLUGIN_ID: i32 = 20001;

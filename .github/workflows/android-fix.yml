@@ -1,0 +1,350 @@
+name: Android Build Fix
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Android target architecture'
+        required: false
+        default: 'arm64-v8a'
+        type: choice
+        options:
+          - arm64-v8a
+          - armeabi-v7a
+          - x86_64
+          - x86
+
+jobs:
+  android-build-with-fix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    
+    env:
+      CARGO_TERM_COLOR: always
+      VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+      VCPKG_COMMIT_ID: "120deac3062162151622ca4860575a33844ba10b"
+      ANDROID_NDK_VERSION: "r26d"
+      FLUTTER_VERSION: "3.24.5"
+    
+    steps:
+      - name: 检查代码
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: 设置Python环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 安装系统依赖
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            build-essential cmake curl git nasm yasm ninja-build \
+            clang pkg-config unzip wget libssl-dev \
+            libopus-dev libvpx-dev python3-pip
+      
+      - name: 设置Rust环境
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.75"
+          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android,i686-linux-android
+      
+      - name: 设置Flutter环境
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+      
+      - name: 设置Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: ${{ env.ANDROID_NDK_VERSION }}
+          add-to-path: true
+      
+      - name: 安装cargo-ndk
+        run: |
+          cargo install cargo-ndk --version 3.1.2
+      
+      - name: 创建Android头文件stub
+        run: |
+          echo "🔧 创建Android头文件stub..."
+          python3 android_headers_fix.py --action create-all --headers-dir target/android-headers
+          
+          echo "📁 创建的头文件:"
+          find target/android-headers -name "*.h" -type f | sort
+      
+      - name: 设置头文件环境变量
+        run: |
+          echo "设置头文件环境变量..."
+          HEADER_PATH="$(pwd)/target/android-headers"
+          echo "HEADER_PATH=$HEADER_PATH" >> $GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-I$HEADER_PATH --sysroot=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot" >> $GITHUB_ENV
+          echo "CFLAGS=-I$HEADER_PATH" >> $GITHUB_ENV
+          echo "CXXFLAGS=-I$HEADER_PATH" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$HEADER_PATH" >> $GITHUB_ENV
+          
+          echo "环境变量已设置:"
+          echo "HEADER_PATH=$HEADER_PATH"
+          echo "BINDGEN_EXTRA_CLANG_ARGS=$BINDGEN_EXTRA_CLANG_ARGS"
+      
+      - name: 检查vcpkg头文件
+        run: |
+          if [ -d "$VCPKG_ROOT/installed/arm64-android/include" ]; then
+            echo "✅ 找到vcpkg Android头文件"
+            ls -la "$VCPKG_ROOT/installed/arm64-android/include/"
+            
+            # 创建符号链接
+            echo "创建符号链接..."
+            ln -sf "$VCPKG_ROOT/installed/arm64-android/include/"* target/android-headers/ 2>/dev/null || true
+          else
+            echo "⚠️  未找到vcpkg Android头文件，使用stub头文件"
+          fi
+      
+      - name: 构建Rust库（带自动修复）
+        id: build-rust
+        continue-on-error: true
+        run: |
+          echo "🚀 开始构建Rust库..."
+          
+          TARGET="${{ inputs.target || 'arm64-v8a' }}"
+          echo "目标架构: $TARGET"
+          
+          # 构建命令
+          BUILD_CMD="cargo ndk -t $TARGET -o flutter/android/app/src/main/jniLibs build --release --lib --features flutter"
+          
+          # 使用自动修复脚本运行构建
+          python3 android_headers_fix.py \
+            --action run-build \
+            --build-command "$BUILD_CMD" \
+            --headers-dir target/android-headers
+          
+          # 检查构建结果
+          if [ $? -eq 0 ]; then
+            echo "✅ Rust库构建成功"
+            echo "rust_build_success=true" >> $GITHUB_OUTPUT
+            
+            # 检查生成的库文件
+            echo "生成的库文件:"
+            find flutter/android/app/src/main/jniLibs -name "*.so" -type f 2>/dev/null || echo "未找到.so文件"
+          else
+            echo "❌ Rust库构建失败，尝试备用方案..."
+            echo "rust_build_success=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 备用构建方案（如果主方案失败）
+        if: steps.build-rust.outputs.rust_build_success == 'false'
+        run: |
+          echo "🔄 尝试备用构建方案..."
+          
+          TARGET="${{ inputs.target || 'arm64-v8a' }}"
+          
+          # 方案1: 禁用特定功能
+          echo "尝试方案1: 禁用可能有问题features..."
+          cargo ndk -t $TARGET -o flutter/android/app/src/main/jniLibs build --release --lib \
+            --no-default-features \
+            --features "flutter" 2>&1 | tee build_log_no_features.txt
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ 方案1构建成功"
+            exit 0
+          fi
+          
+          # 方案2: 使用更简单的配置
+          echo "尝试方案2: 最小化features..."
+          cargo ndk -t $TARGET -o flutter/android/app/src/main/jniLibs build --release --lib \
+            --features "" 2>&1 | tee build_log_minimal.txt
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ 方案2构建成功"
+            exit 0
+          fi
+          
+          # 方案3: 仅构建库
+          echo "尝试方案3: 仅构建库（无features）..."
+          cargo ndk -t $TARGET -o flutter/android/app/src/main/jniLibs build --release --lib 2>&1 | tee build_log_lib_only.txt
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ 方案3构建成功"
+            exit 0
+          fi
+          
+          echo "❌ 所有备用方案都失败"
+          exit 1
+      
+      - name: 分析构建错误
+        if: failure()
+        run: |
+          echo "🔍 分析构建错误..."
+          
+          # 收集所有构建日志
+          for log in build*.txt; do
+            if [ -f "$log" ]; then
+              echo "=== $log ==="
+              grep -i "error\|missing\|not found\|undefined" "$log" | head -20
+              echo ""
+            fi
+          done
+          
+          # 检查缺失的头文件
+          echo "=== 缺失的头文件 ==="
+          for log in build*.txt; do
+            if [ -f "$log" ]; then
+              grep -o "'.*\.h' file not found" "$log" 2>/dev/null | sort | uniq || true
+              grep -o "cannot open include file: '.*'" "$log" 2>/dev/null | sort | uniq || true
+            fi
+          done
+          
+          # 生成修复建议
+          echo ""
+          echo "💡 修复建议:"
+          echo "1. 检查android_headers_fix.py是否包含了所有需要的头文件"
+          echo "2. 在android_headers_fix.py的common_headers中添加缺失的头文件"
+          echo "3. 检查Cargo.toml中的依赖配置"
+          echo "4. 考虑禁用某些features进行构建"
+      
+      - name: 构建Flutter APK
+        if: steps.build-rust.outputs.rust_build_success == 'true'
+        run: |
+          echo "📱 构建Flutter APK..."
+          
+          cd flutter
+          flutter pub get
+          
+          # 接受Android许可证
+          yes | flutter doctor --android-licenses 2>/dev/null || true
+          
+          # 构建APK
+          flutter build apk --release 2>&1 | tee ../flutter_build.log
+          cd ..
+          
+          # 检查APK文件
+          if [ -f "flutter/build/app/outputs/flutter-apk/app-release.apk" ]; then
+            echo "✅ APK构建成功"
+            ls -lh flutter/build/app/outputs/flutter-apk/app-release.apk
+            echo "apk_size=$(stat -c%s flutter/build/app/outputs/flutter-apk/app-release.apk)" >> $GITHUB_OUTPUT
+          else
+            echo "❌ APK构建失败"
+            exit 1
+          fi
+      
+      - name: 上传构建产物
+        if: steps.build-rust.outputs.rust_build_success == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ github.run_id }}
+          path: |
+            flutter/build/app/outputs/flutter-apk/app-release.apk
+            target/android-headers/
+          retention-days: 7
+      
+      - name: 上传构建日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ github.run_id }}
+          path: |
+            build*.txt
+            flutter_build.log
+          retention-days: 30
+      
+      - name: 生成构建报告
+        if: always()
+        run: |
+          echo "📊 生成构建报告..."
+          
+          REPORT_FILE="build_report_$(date +%Y%m%d_%H%M%S).md"
+          
+          cat > "$REPORT_FILE" << EOF
+          # Android构建报告
+          
+          ## 构建信息
+          - **运行ID**: ${{ github.run_id }}
+          - **触发时间**: $(date)
+          - **目标架构**: ${{ inputs.target || 'arm64-v8a' }}
+          - **Rust构建状态**: ${{ steps.build-rust.outputs.rust_build_success || 'unknown' }}
+          
+          ## 头文件处理
+          EOF
+          
+          if [ -d "target/android-headers" ]; then
+            echo "- **头文件目录**: target/android-headers" >> "$REPORT_FILE"
+            echo "- **头文件数量**: $(find target/android-headers -name "*.h" -type f | wc -l)" >> "$REPORT_FILE"
+            echo "- **头文件列表**: " >> "$REPORT_FILE"
+            find target/android-headers -name "*.h" -type f | sort | sed 's/^/  - /' >> "$REPORT_FILE"
+          fi
+          
+          cat >> "$REPORT_FILE" << EOF
+          
+          ## 构建产物
+          EOF
+          
+          if [ -f "flutter/build/app/outputs/flutter-apk/app-release.apk" ]; then
+            APK_SIZE=$(stat -c%s flutter/build/app/outputs/flutter-apk/app-release.apk 2>/dev/null || echo "0")
+            echo "- **APK文件**: flutter/build/app/outputs/flutter-apk/app-release.apk" >> "$REPORT_FILE"
+            echo "- **APK大小**: $((APK_SIZE / 1024 / 1024)) MB" >> "$REPORT_FILE"
+          else
+            echo "- **APK文件**: 未生成" >> "$REPORT_FILE"
+          fi
+          
+          if [ -d "flutter/android/app/src/main/jniLibs" ]; then
+            echo "- **JNI库目录**: flutter/android/app/src/main/jniLibs" >> "$REPORT_FILE"
+            echo "- **库文件**: " >> "$REPORT_FILE"
+            find flutter/android/app/src/main/jniLibs -name "*.so" -type f 2>/dev/null | sed 's/^/  - /' >> "$REPORT_FILE" || echo "  无" >> "$REPORT_FILE"
+          fi
+          
+          # 检查错误
+          cat >> "$REPORT_FILE" << EOF
+          
+          ## 错误分析
+          EOF
+          
+          ERROR_FOUND=false
+          for log in build*.txt flutter_build.log; do
+            if [ -f "$log" ] && grep -q -i "error\|failed\|missing\|not found" "$log"; then
+              ERROR_FOUND=true
+              echo "### $log 中的错误" >> "$REPORT_FILE"
+              echo '```' >> "$REPORT_FILE"
+              grep -i "error\|failed\|missing\|not found" "$log" | head -10 >> "$REPORT_FILE"
+              echo '```' >> "$REPORT_FILE"
+              echo "" >> "$REPORT_FILE"
+            fi
+          done
+          
+          if [ "$ERROR_FOUND" = false ]; then
+            echo "未发现错误" >> "$REPORT_FILE"
+          fi
+          
+          cat >> "$REPORT_FILE" << EOF
+          
+          ## 修复建议
+          
+          如果构建失败，请尝试:
+          
+          1. **检查头文件**: 确保所有需要的C头文件都有对应的stub
+          2. **更新stub**: 在android_headers_fix.py中添加缺失的头文件
+          3. **调整features**: 在Cargo.toml中禁用有问题的features
+          4. **检查依赖**: 确认所有依赖都支持Android交叉编译
+          5. **查看详细日志**: 检查上传的构建日志文件
+          
+          ## 环境信息
+          - **Rust版本**: $(rustc --version)
+          - **Flutter版本**: $(cd flutter && flutter --version | head -1)
+          - **NDK版本**: ${{ env.ANDROID_NDK_VERSION }}
+          - **操作系统**: $(uname -a)
+          
+          ---
+          *报告生成时间: $(date)*
+          EOF
+          
+          echo "报告已生成: $REPORT_FILE"
+      
+      - name: 上传构建报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-report-${{ github.run_id }}
+          path: build_report_*.md
+          retention-days: 30

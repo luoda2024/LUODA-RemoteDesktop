@@ -1879,7 +1879,7 @@ fn get_public_base_dir() -> PathBuf {
 #[inline]
 pub fn get_custom_client_staging_dir() -> PathBuf {
     get_public_base_dir()
-        .join("RustDesk")
+        .join("LUODA")
         .join("RustDeskCustomClientStaging")
 }
 
@@ -3705,7 +3705,7 @@ pub fn is_x64() -> bool {
 }
 
 pub fn try_kill_rustdesk_main_window_process() -> ResultType<()> {
-    // Kill rustdesk.exe without extra arg, should only be called by --server
+    // Kill luoda.exe without extra arg, should only be called by --server
     // We can find the exact process which occupies the ipc, see more from https://github.com/winsiderss/systeminformer
     let app_name = crate::get_app_name().to_lowercase();
     log::info!("try kill main window process");

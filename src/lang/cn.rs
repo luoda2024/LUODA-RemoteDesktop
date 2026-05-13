@@ -299,7 +299,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Failed to turn off", "退出失败"),
         ("Turned off", "退出"),
         ("Language", "语言"),
-        ("Keep RustDesk background service", "保持 LUODA 后台服务"),
+        ("Keep LUODA background service", "保持 LUODA 后台服务"),
         ("Ignore Battery Optimizations", "忽略电池优化"),
         ("android_open_battery_optimizations_tip", "如需关闭此功能，请在接下来的 LUODA 应用设置页面中，找到并进入 [电源] 页面，取消勾选 [不受限制]"),
         ("Start on boot", "开机自启动"),

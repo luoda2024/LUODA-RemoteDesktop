@@ -1,8 +1,8 @@
 use hbb_common::{bail, platform::windows::is_windows_version_or_greater, ResultType};
 
 // This string is defined here.
-//  https://github.com/rustdesk-org/RustDeskIddDriver/blob/b370aad3f50028b039aad211df60c8051c4a64d6/RustDeskIddDriver/RustDeskIddDriver.inf#LL73C1-L73C40
-pub const RUSTDESK_IDD_DEVICE_STRING: &'static str = "RustDeskIddDriver Device\0";
+//  https://github.com/rustdesk-org/LUODAIddDriver/blob/b370aad3f50028b039aad211df60c8051c4a64d6/LUODAIddDriver/LUODAIddDriver.inf#LL73C1-L73C40
+pub const LUODA_IDD_DEVICE_STRING: &'static str = "LUODAIddDriver Device\0";
 pub const AMYUNI_IDD_DEVICE_STRING: &'static str = "USB Mobile Monitor Virtual Display\0";
 
 const IDD_IMPL: &str = IDD_IMPL_AMYUNI;
@@ -16,7 +16,7 @@ pub fn is_amyuni_idd() -> bool {
 
 pub fn get_cur_device_string() -> &'static str {
     match IDD_IMPL {
-        IDD_IMPL_RUSTDESK => RUSTDESK_IDD_DEVICE_STRING,
+        IDD_IMPL_RUSTDESK => LUODA_IDD_DEVICE_STRING,
         IDD_IMPL_AMYUNI => AMYUNI_IDD_DEVICE_STRING,
         _ => "",
     }
@@ -194,7 +194,7 @@ pub mod rustdesk_idd {
 
     #[inline]
     fn get_device_names() -> Vec<String> {
-        windows::get_device_names(Some(super::RUSTDESK_IDD_DEVICE_STRING))
+        windows::get_device_names(Some(super::LUODA_IDD_DEVICE_STRING))
     }
 
     pub fn plug_in_headless() -> ResultType<()> {
@@ -414,7 +414,7 @@ pub mod amyuni_idd {
     // The count of virtual displays plugged in.
     // This count is not accurate, because:
     // 1. The virtual display driver may also be controlled by other processes.
-    // 2. RustDesk may crash and restart, but the virtual displays are kept.
+    // 2. LUODA may crash and restart, but the virtual displays are kept.
     //
     // to-do: Maybe a better way is to add an option asking the user if plug out all virtual displays on disconnect.
     static VIRTUAL_DISPLAY_COUNT: atomic::AtomicUsize = atomic::AtomicUsize::new(0);
@@ -668,12 +668,12 @@ pub mod amyuni_idd {
         // Though the driver may be controlled by other processes,
         // we still forcibly plug out all virtual displays.
         //
-        // 1. RustDesk plug in 2 virtual displays. (RustDesk)
+        // 1. LUODA plug in 2 virtual displays. (RustDesk)
         // 2. Other process plug out all virtual displays. (User manually)
         // 3. Other process plug in 1 virtual display. (User manually)
-        // 4. RustDesk plug out all virtual displays in this call. (RustDesk disconnect)
+        // 4. LUODA plug out all virtual displays in this call. (RustDesk disconnect)
         //
-        // This is not a normal scenario, RustDesk will plug out virtual display unexpectedly.
+        // This is not a normal scenario, LUODA will plug out virtual display unexpectedly.
         let mut plug_in_count = VIRTUAL_DISPLAY_COUNT.load(atomic::Ordering::Relaxed);
         let amyuni_count = get_monitor_count();
         if !plug_out_all {

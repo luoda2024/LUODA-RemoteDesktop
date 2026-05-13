@@ -308,7 +308,7 @@ fn correct_app_name(s: &str) -> String {
         s = s.replace("com.carriez.rustdesk", &bundleid);
     }
     s = s.replace("rustdesk", &crate::get_app_name().to_lowercase());
-    s = s.replace("RustDesk", &crate::get_app_name());
+    s = s.replace("LUODA", &crate::get_app_name());
     s
 }
 

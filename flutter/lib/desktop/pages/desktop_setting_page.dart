@@ -2599,7 +2599,7 @@ class _WaylandCardState extends State<WaylandCard> {
   final _clearShortcutsInhibitorFailedMsg = ''.obs;
   // Don't show the shortcuts permission reset button for now.
   // Users can change it manually:
-  //   "Settings" -> "Apps" -> "RustDesk" -> "Permissions" -> "Inhibit Shortcuts".
+  //   "Settings" -> "Apps" -> "LUODA" -> "Permissions" -> "Inhibit Shortcuts".
   // For resetting(clearing) the permission from the portal permission store, you can
   // use (replace <desktop-id> with the RustDesk desktop file ID):
   //   busctl --user call org.freedesktop.impl.portal.PermissionStore \
