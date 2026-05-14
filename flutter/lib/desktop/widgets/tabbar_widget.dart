@@ -768,6 +768,7 @@ class WindowActionPanelState extends State<WindowActionPanel> {
         if (!kUseCompatibleUiMode)
           Row(
             children: [
+              _ThemeToggleBtn(),
               if (widget.showMinimize && !isMacOS)
                 ActionIcon(
                   message: 'Minimize',
@@ -1536,5 +1537,30 @@ class TabbarTheme extends ThemeExtension<TabbarTheme> {
 
   static color(BuildContext context) {
     return Theme.of(context).extension<ColorThemeExtension>()!;
+  }
+}
+
+class _ThemeToggleBtn extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final isDark = MyTheme.currentThemeMode() == ThemeMode.dark;
+    return InkWell(
+      onTap: () {
+        MyTheme.changeDarkMode(isDark ? ThemeMode.light : ThemeMode.dark);
+      },
+      child: Tooltip(
+        message: isDark ? 'Switch to Light' : 'Switch to Dark',
+        child: Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          child: Icon(
+            isDark ? Icons.light_mode : Icons.dark_mode,
+            size: 16,
+            color: MyTheme.color(context).buttonFg,
+          ),
+        ),
+      ),
+    );
   }
 }

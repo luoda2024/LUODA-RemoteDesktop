@@ -93,12 +93,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
                     child: Row(
                       children: [
                         Flexible(
-                          child: Text(
-                            translate('setup_server_tip'),
-                            style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                fontSize: em),
-                          ),
+                          child: _ServerAddressWidget(em: em),
                         ),
                       ],
                     ),
@@ -611,5 +606,39 @@ class _ConnectionPageState extends State<ConnectionPage>
     );
     return Container(
         constraints: const BoxConstraints(maxWidth: 600), child: w);
+  }
+}
+
+class _ServerAddressWidget extends StatefulWidget {
+  final double em;
+  const _ServerAddressWidget({required this.em});
+
+  @override
+  State<_ServerAddressWidget> createState() => _ServerAddressWidgetState();
+}
+
+class _ServerAddressWidgetState extends State<_ServerAddressWidget> {
+  String _server = 'rev.dicad.cn';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadServer();
+  }
+
+  void _loadServer() {
+    final custom = bind.mainGetLocalOption(key: 'custom-rendezvous-server');
+    if (custom.isNotEmpty) {
+      _server = custom;
+    }
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      _server,
+      style: TextStyle(fontSize: widget.em),
+    );
   }
 }
