@@ -43,7 +43,7 @@ jobs:
           head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!" 
 
       - name: Install Homebrew deps
-        run: brew install opus
+        run: brew install opus libyuv nasm
 
       - name: Build Rust
         run: cargo build --release
