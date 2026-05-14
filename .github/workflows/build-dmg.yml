@@ -42,6 +42,9 @@ jobs:
           ls -la flutter/lib/generated_bridge.dart || echo "ERROR: generated_bridge.dart not created!"
           head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!" 
 
+      - name: Build Rust
+        run: cargo build --release
+
       - name: Build Flutter macOS
         run: |
           cd flutter
