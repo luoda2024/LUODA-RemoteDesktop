@@ -165,7 +165,7 @@ jobs:
       - name: Build luoda
         run: |
           # Windows: build LUODA
-          flutter clean
+          cd flutter; flutter clean; cd ..
           python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack
           mv ./flutter/build/windows/x64/runner/Release ./luoda
 
