@@ -263,6 +263,23 @@ jobs:
           # 设置环境变量供后续步骤使用
           echo "OPUS_INCLUDE_PATH=$(pwd)/target/opus-include" >> $GITHUB_ENV
 
+      - name: Setup vpx headers for Android build
+        run: |
+          # 手动下载 vpx 头文件到标准位置，避免 vcpkg 路径问题
+          VPX_INCLUDE=$(pwd)/target/vpx-include/vpx
+          mkdir -p $VPX_INCLUDE
+
+          # 从官方仓库下载头文件
+          BASE_URL="https://raw.githubusercontent.com/webmproject/libvpx/main/vpx"
+          for f in vp8.h vp8cx.h vp8dx.h vpx_codec.h vpx_decoder.h vpx_encoder.h vpx_image.h vpx_integer.h; do
+            wget -q "$BASE_URL/$f" -O "$VPX_INCLUDE/$f" || echo "WARN: failed to download $f"
+          done
+
+          echo "=== 下载的 vpx 头文件 ==="
+          ls -la $VPX_INCLUDE/
+
+          echo "VPX_INCLUDE_PATH=$(pwd)/target/vpx-include" >> $GITHUB_ENV
+
       - name: Build Rust library for Android
         run: |
           NDK=${{ steps.setup-ndk.outputs.ndk-path }}
@@ -284,9 +301,9 @@ jobs:
 
             echo "Building for $TARGET_ABI ($RUST_TARGET)..."
 
-            BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot -I$OPUS_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
-            CFLAGS="-I$OPUS_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
-            CXXFLAGS="-I$OPUS_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
+            BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot -I$OPUS_INCLUDE -I$VPX_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
+            CFLAGS="-I$OPUS_INCLUDE -I$VPX_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
+            CXXFLAGS="-I$OPUS_INCLUDE -I$VPX_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
             cargo ndk -t $TARGET_ABI -o $OUT build --release --features flutter --features use_dasp --features mediacodec --target $RUST_TARGET
           done
         env:

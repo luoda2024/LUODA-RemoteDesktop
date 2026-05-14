@@ -25,13 +25,23 @@ jobs:
         with:
           toolchain: "1.75"
 
+      - name: Install rustfmt
+        run: rustup component add rustfmt
+
       - name: Generate FFI bridge
         shell: bash
         run: |
-          cargo install cargo-expand --version 1.0.95 --locked
-          cargo install flutter_rust_bridge_codegen --version 1.80.1 --features uuid --locked
+          echo "=== Installing cargo-expand ==="
+          cargo install cargo-expand --version 1.0.95 --locked 2>&1 | tail -5
+          echo "=== Installing flutter_rust_bridge_codegen ==="
+          cargo install flutter_rust_bridge_codegen --version 1.80.1 --features uuid --locked 2>&1 | tail -5
+          echo "=== Running flutter pub get ==="
           cd flutter && flutter pub get && cd ..
-          flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart --no-c-generate
+          echo "=== Running flutter_rust_bridge_codegen ==="
+          flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart 2>&1
+          echo "=== Verifying generated file ==="
+          ls -la flutter/lib/generated_bridge.dart || echo "ERROR: generated_bridge.dart not created!"
+          head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!"  --no-c-generate
 
       - name: Build Flutter Windows
         run: |

@@ -1557,7 +1557,7 @@ class _ThemeToggleBtn extends StatelessWidget {
           child: Icon(
             isDark ? Icons.light_mode : Icons.dark_mode,
             size: 16,
-            color: MyTheme.accent,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ),
       ),

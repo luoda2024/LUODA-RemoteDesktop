@@ -32,15 +32,24 @@ jobs:
           toolchain: "1.75"
           targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
 
+      - name: Install rustfmt
+        run: rustup component add rustfmt
+
       - name: Install cargo-ndk
         run: cargo install cargo-ndk --version 2.11.0 --locked
 
       - name: Generate FFI bridge
         run: |
-          cargo install cargo-expand --version 1.0.95 --locked
-          cargo install flutter_rust_bridge_codegen --version 1.80.1 --features uuid --locked
+          cargo install cargo-expand --version 1.0.95 --locked 2>&1 | tail -5
+          echo "=== Installing flutter_rust_bridge_codegen ==="
+          cargo install flutter_rust_bridge_codegen --version 1.80.1 --features uuid --locked 2>&1 | tail -5
+          echo "=== Running flutter pub get ==="
           cd flutter && flutter pub get && cd ..
-          flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart --no-c-generate
+          echo "=== Running flutter_rust_bridge_codegen ==="
+          flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart 2>&1
+          echo "=== Verifying generated file ==="
+          ls -la flutter/lib/generated_bridge.dart || echo "ERROR: generated_bridge.dart not created!"
+          head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!"
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -49,9 +58,8 @@ jobs:
 
       - name: Build Rust lib
         run: |
-          cd flutter
           export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.0.13004108
-          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o android/app/src/main/jniLibs build --release
+          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o flutter/android/app/src/main/jniLibs build --release
 
       - name: Build APK
         run: |
