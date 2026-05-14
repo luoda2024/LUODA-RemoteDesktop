@@ -32,6 +32,9 @@ jobs:
           toolchain: "1.75"
           targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
 
+      - name: Install rustfmt
+        run: rustup component add rustfmt
+
       - name: Install cargo-ndk
         run: cargo install cargo-ndk --version 2.11.0 --locked
 
