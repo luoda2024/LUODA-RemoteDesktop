@@ -3,9 +3,9 @@
 pub const ERR_SUCCESS: i32 = 0;
 
 // ======================================================
-// Errors from the plugins, must be handled by RustDesk
+// Errors from the plugins, must be handled by LUODA
 
-pub const ERR_RUSTDESK_HANDLE_BASE: i32 = 10000;
+pub const ERR_LUODA_HANDLE_BASE: i32 = 10000;
 
 // not loaded
 pub const ERR_PLUGIN_LOAD: i32 = 10001;

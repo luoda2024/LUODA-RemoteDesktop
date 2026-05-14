@@ -2791,8 +2791,8 @@ pub fn main_get_common(key: String) -> String {
                 crate::platform::windows::is_msi_installed(),
                 crate::common::is_custom_client(),
             ) {
-                (Ok(true), false) => format!("rustdesk-{_version}-x86_64.msi"),
-                (Ok(true), true) | (Ok(false), _) => format!("rustdesk-{_version}-x86_64.exe"),
+                (Ok(true), false) => format!("luoda-{_version}-x86_64.msi"),
+                (Ok(true), true) | (Ok(false), _) => format!("luoda-{_version}-x86_64.exe"),
                 (Err(e), _) => {
                     log::error!("Failed to check if is msi: {}", e);
                     format!("error:update-failed-check-msi-tip")
@@ -2801,9 +2801,9 @@ pub fn main_get_common(key: String) -> String {
             #[cfg(target_os = "macos")]
             {
                 return if cfg!(target_arch = "x86_64") {
-                    format!("rustdesk-{_version}-x86_64.dmg")
+                    format!("luoda-{_version}-x86_64.dmg")
                 } else if cfg!(target_arch = "aarch64") {
-                    format!("rustdesk-{_version}-aarch64.dmg")
+                    format!("luoda-{_version}-aarch64.dmg")
                 } else {
                     "error:unsupported".to_owned()
                 };

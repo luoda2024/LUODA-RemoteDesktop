@@ -1,12 +1,12 @@
 {
-  "id": "com.rustdesk.RustDesk",
+  "id": "com.luoda.LUODA",
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "24.08",
   "sdk": "org.freedesktop.Sdk",
-  "command": "rustdesk",
+  "command": "luoda",
   "cleanup": ["/include", "/lib/pkgconfig", "/share/gtk-doc"],
-  "rename-desktop-file": "rustdesk.desktop",
-  "rename-icon": "rustdesk",
+  "rename-desktop-file": "luoda.desktop",
+  "rename-icon": "luoda",
   "modules": [
     "shared-modules/libappindicator/libappindicator-gtk3-12.10.json",
     {
@@ -34,21 +34,21 @@
       ]
     },
     {
-      "name": "rustdesk",
+      "name": "luoda",
       "buildsystem": "simple",
       "build-commands": [
-        "bsdtar -Oxf rustdesk.deb data.tar.xz | bsdtar -xf -",
+        "bsdtar -Oxf luoda.deb data.tar.xz | bsdtar -xf -",
         "cp -r usr/* /app/",
-        "mkdir -p /app/bin && ln -s /app/share/rustdesk/rustdesk /app/bin/rustdesk"
+        "mkdir -p /app/bin && ln -s /app/share/luoda/luoda /app/bin/luoda"
       ],
       "sources": [
         {
           "type": "file",
-          "path": "rustdesk.deb"
+          "path": "luoda.deb"
         },
         {
           "type": "file",
-          "path": "com.rustdesk.RustDesk.metainfo.xml"
+          "path": "com.luoda.LUODA.metainfo.xml"
         }
       ]
     }

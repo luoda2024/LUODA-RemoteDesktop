@@ -192,7 +192,7 @@ class MainService : Service() {
     private var serviceHandler: Handler? = null
 
     private val powerManager: PowerManager by lazy { applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager }
-    private val wakeLock: PowerManager.WakeLock by lazy { powerManager.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "rustdesk:wakelock")}
+    private val wakeLock: PowerManager.WakeLock by lazy { powerManager.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "luoda:wakelock")}
 
     companion object {
         private var _isReady = false // media permission ready status
@@ -477,7 +477,7 @@ class MainService : Service() {
             virtualDisplay?.release()
         }
         // suface needs to be release after `imageReader.close()` to imageReader access released surface
-        // https://github.com/rustdesk/rustdesk/issues/4118#issuecomment-1515666629
+        // https://github.com/luoda/luoda/issues/4118#issuecomment-1515666629
         imageReader?.close()
         imageReader = null
         videoEncoder?.let {
@@ -490,7 +490,7 @@ class MainService : Service() {
         }
         videoEncoder = null
         // suface needs to be release after `imageReader.close()` to imageReader access released surface
-        // https://github.com/rustdesk/rustdesk/issues/4118#issuecomment-1515666629
+        // https://github.com/luoda/luoda/issues/4118#issuecomment-1515666629
         surface?.release()
 
         // release audio
@@ -626,13 +626,13 @@ class MainService : Service() {
     private fun initNotification() {
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = "RustDesk"
-            val channelName = "RustDesk Service"
+            val channelId = "LUODA"
+            val channelName = "LUODA Service"
             val channel = NotificationChannel(
                 channelId,
                 channelName, NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "RustDesk Service Channel"
+                description = "LUODA Service Channel"
             }
             channel.lightColor = Color.BLUE
             channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE

@@ -53,7 +53,7 @@ pub enum GrabState {
 pub type NotifyMessageBox = fn(String, String, String, String) -> dyn Future<Output = ()>;
 
 // the executable name of the portable version
-pub const PORTABLE_APPNAME_RUNTIME_ENV_KEY: &str = "RUSTDESK_APPNAME";
+pub const PORTABLE_APPNAME_RUNTIME_ENV_KEY: &str = "LUODA_APPNAME";
 
 pub const PLATFORM_WINDOWS: &str = "Windows";
 pub const PLATFORM_LINUX: &str = "Linux";
@@ -953,7 +953,7 @@ pub fn check_software_update() {
 #[tokio::main(flavor = "current_thread")]
 pub async fn do_check_software_update() -> hbb_common::ResultType<()> {
     let (request, url) =
-        hbb_common::version_check_request(hbb_common::VER_TYPE_RUSTDESK_CLIENT.to_string());
+        hbb_common::version_check_request(hbb_common::VER_TYPE_LUODA_CLIENT.to_string());
     let proxy_conf = Config::get_socks();
     let tls_url = get_url_for_tls(&url, &proxy_conf);
     let tls_type = get_cached_tls_type(tls_url);
@@ -1005,7 +1005,7 @@ pub fn get_app_name() -> String {
 }
 
 #[inline]
-pub fn is_rustdesk() -> bool {
+pub fn is_luoda() -> bool {
     hbb_common::config::APP_NAME.read().unwrap().eq("LUODA")
 }
 
@@ -1633,7 +1633,7 @@ pub fn check_process(arg: &str, mut same_uid: bool) -> bool {
         if same_uid && p.user_id() != my_uid {
             continue;
         }
-        // on mac, p.cmd() get "/Applications/LUODA.app/Contents/MacOS/RustDesk", "XPC_SERVICE_NAME=com.carriez.LUODA_server"
+        // on mac, p.cmd() get "/Applications/LUODA.app/Contents/MacOS/LUODA", "XPC_SERVICE_NAME=com.carriez.LUODA_server"
         let parg = if p.cmd().len() <= 1 { "" } else { &p.cmd()[1] };
         if arg.is_empty() {
             if !parg.starts_with("--") {
@@ -1777,7 +1777,7 @@ impl ThrottledInterval {
 pub type LUODAInterval = ThrottledInterval;
 
 #[inline]
-pub fn rustdesk_interval(i: Interval) -> ThrottledInterval {
+pub fn luoda_interval(i: Interval) -> ThrottledInterval {
     ThrottledInterval::new(i)
 }
 
@@ -2358,7 +2358,7 @@ mod tests {
         for maker in base_intervals.into_iter() {
             let mut tokio_timer = maker();
             let mut tokio_times = Vec::new();
-            let mut timer = rustdesk_interval(maker());
+            let mut timer = luoda_interval(maker());
             let mut times = Vec::new();
             loop {
                 tokio::select! {
@@ -2405,7 +2405,7 @@ mod tests {
     async fn test_LUODA_interval_sleep() {
         let base_intervals = [interval_maker, interval_at_maker];
         for (i, maker) in base_intervals.into_iter().enumerate() {
-            let mut timer = rustdesk_interval(maker());
+            let mut timer = luoda_interval(maker());
             let mut times = Vec::new();
             sleep(Duration::from_secs(3)).await;
             loop {

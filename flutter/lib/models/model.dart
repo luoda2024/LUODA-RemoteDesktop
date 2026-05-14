@@ -753,7 +753,7 @@ class FfiModel with ChangeNotifier {
       case kUrlActionClose:
         debugPrint("closing all instances");
         Future.microtask(() async {
-          await rustDeskWinManager.closeAllSubWindows();
+          await luodaWinManager.closeAllSubWindows();
           windowManager.close();
         });
         break;
@@ -965,7 +965,7 @@ class FfiModel with ChangeNotifier {
       // The actual wait may exceed 30s (e.g., 20s elapsed + 16s next retry = 36s), which is acceptable
       // since the controlled side reconnects quickly after account changes.
       // Uses time-based check instead of _reconnects count because user can manually retry.
-      // https://github.com/rustdesk/rustdesk/discussions/14048
+      // https://github.com/luoda/luoda/discussions/14048
       if (_offlineReconnectStartTime == null) {
         // First offline, record time and start retry
         _offlineReconnectStartTime = DateTime.now();
@@ -1644,7 +1644,7 @@ class FfiModel with ChangeNotifier {
     }
 
     if (updateData.isEmpty) {
-      _pi.platformAdditions.remove(kPlatformAdditionsRustDeskVirtualDisplays);
+      _pi.platformAdditions.remove(kPlatformAdditionsLUODAVirtualDisplays);
       _pi.platformAdditions.remove(kPlatformAdditionsAmyuniVirtualDisplays);
     } else {
       try {
@@ -1653,9 +1653,9 @@ class FfiModel with ChangeNotifier {
           _pi.platformAdditions[key] = updateJson[key];
         }
         if (!updateJson
-            .containsKey(kPlatformAdditionsRustDeskVirtualDisplays)) {
+            .containsKey(kPlatformAdditionsLUODAVirtualDisplays)) {
           _pi.platformAdditions
-              .remove(kPlatformAdditionsRustDeskVirtualDisplays);
+              .remove(kPlatformAdditionsLUODAVirtualDisplays);
         }
         if (!updateJson.containsKey(kPlatformAdditionsAmyuniVirtualDisplays)) {
           _pi.platformAdditions.remove(kPlatformAdditionsAmyuniVirtualDisplays);
@@ -1736,7 +1736,7 @@ class FfiModel with ChangeNotifier {
 
   void setViewOnly(String id, bool value) {
     if (versionCmp(_pi.version, '1.2.0') < 0) return;
-    // tmp fix for https://github.com/rustdesk/rustdesk/pull/3706#issuecomment-1481242389
+    // tmp fix for https://github.com/luoda/luoda/pull/3706#issuecomment-1481242389
     // because below rx not used in mobile version, so not initialized, below code will cause crash
     // current our flutter code quality is fucking shit now. !!!!!!!!!!!!!!!!
     try {
@@ -2552,7 +2552,7 @@ class CanvasModel with ChangeNotifier {
       bumpAmount.y += bumpAmount.y.sign * 0.5;
 
       var bumpMouseSucceeded = _bumpMouseIsWorking &&
-          (await rustDeskWinManager.call(WindowType.Main, kWindowBumpMouse,
+          (await luodaWinManager.call(WindowType.Main, kWindowBumpMouse,
                   {"dx": bumpAmount.x.round(), "dy": bumpAmount.y.round()}))
               .result;
 
@@ -4055,8 +4055,8 @@ class PeerInfo with ChangeNotifier {
   bool get isInstalled =>
       platform != kPeerPlatformWindows ||
       platformAdditions[kPlatformAdditionsIsInstalled] == true;
-  List<int> get RustDeskVirtualDisplays => List<int>.from(
-      platformAdditions[kPlatformAdditionsRustDeskVirtualDisplays] ?? []);
+  List<int> get LUODAVirtualDisplays => List<int>.from(
+      platformAdditions[kPlatformAdditionsLUODAVirtualDisplays] ?? []);
   int get amyuniVirtualDisplayCount =>
       platformAdditions[kPlatformAdditionsAmyuniVirtualDisplays] ?? 0;
 
@@ -4066,8 +4066,8 @@ class PeerInfo with ChangeNotifier {
 
   bool get cursorEmbedded => tryGetDisplay()?.cursorEmbedded ?? false;
 
-  bool get isRustDeskIdd =>
-      platformAdditions[kPlatformAdditionsIddImpl] == 'rustdesk_idd';
+  bool get isLUODAIdd =>
+      platformAdditions[kPlatformAdditionsIddImpl] == 'luoda_idd';
   bool get isAmyuniIdd =>
       platformAdditions[kPlatformAdditionsIddImpl] == 'amyuni_idd';
 

@@ -182,7 +182,7 @@ def generate_build_script_for_docker():
             vcpkg/bootstrap-vcpkg.sh
             popd
             $VCPKG_ROOT/vcpkg install --x-install-root="$VCPKG_ROOT/installed"
-            # build rustdesk
+            # build luoda
             ./build.py --flutter --hwcodec
         ''')
     system2("chmod +x /tmp/build.sh")
@@ -297,8 +297,8 @@ Section: net
 Priority: optional
 Version: %s
 Architecture: %s
-Maintainer: rustdesk <info@rustdesk.com>
-Homepage: https://rustdesk.com
+Maintainer: luoda <info@luoda.com>
+Homepage: https://luoda.com
 Depends: libgtk-3-0, libxcb-randr0, libxdo3 | libxdo4, libxfixes3, libxcb-shape0, libxcb-xfixes0, libasound2, libsystemd0, curl, libva2, libva-drm2, libva-x11-2, libgstreamer-plugins-base1.0-0, libpam0g, gstreamer1.0-pipewire%s
 Recommends: libayatana-appindicator3-1
 Description: A remote control software.
@@ -494,7 +494,7 @@ def main():
             return
         system2('cargo build --release --features ' + features)
         # system2('upx.exe target/release/luoda.exe')
-        system2('mv target/release/luoda.exe target/release/RustDesk.exe')
+        system2('mv target/release/luoda.exe target/release/LUODA.exe')
         pa = os.environ.get('P')
         if pa:
             # https://certera.com/kb/tutorial-guide-for-safenet-authentication-client-for-code-signing/
@@ -504,7 +504,7 @@ def main():
         else:
             print('Not signed')
         system2(
-            f'cp -rf target/release/RustDesk.exe {res_dir}')
+            f'cp -rf target/release/LUODA.exe {res_dir}')
         os.chdir('libs/portable')
         system2('pip3 install -r requirements.txt')
         system2(
@@ -523,7 +523,7 @@ def main():
             system2('HBB=`pwd` makepkg -f')
         system2('mv luoda-%s-0-x86_64.pkg.tar.zst luoda-%s-manjaro-arch.pkg.tar.zst' % (
             version, version))
-        # pacman -U ./rustdesk.pkg.tar.zst
+        # pacman -U ./luoda.pkg.tar.zst
     elif os.path.isfile('/usr/bin/yum'):
         system2('cargo build --release --features ' + features)
         system2('strip target/release/luoda')
@@ -533,7 +533,7 @@ def main():
         system2(
             'mv $HOME/rpmbuild/RPMS/x86_64/luoda-%s-0.x86_64.rpm ./luoda-%s-fedora28-centos8.rpm' % (
                 version, version))
-        # yum localinstall rustdesk.rpm
+        # yum localinstall luoda.rpm
     elif os.path.isfile('/usr/bin/zypper'):
         system2('cargo build --release --features ' + features)
         system2('strip target/release/luoda')
@@ -543,7 +543,7 @@ def main():
         system2(
             'mv $HOME/rpmbuild/RPMS/x86_64/luoda-%s-0.x86_64.rpm ./luoda-%s-suse.rpm' % (
                 version, version))
-        # yum localinstall rustdesk.rpm
+        # yum localinstall luoda.rpm
     else:
         if flutter:
             if osx:
@@ -557,9 +557,9 @@ def main():
             system2('cargo bundle --release --features ' + features)
             if osx:
                 system2(
-                    'strip target/release/bundle/osx/RustDesk.app/Contents/MacOS/rustdesk')
+                    'strip target/release/bundle/osx/LUODA.app/Contents/MacOS/luoda')
                 system2(
-                    'cp libsciter.dylib target/release/bundle/osx/RustDesk.app/Contents/MacOS/')
+                    'cp libsciter.dylib target/release/bundle/osx/LUODA.app/Contents/MacOS/')
                 # https://github.com/sindresorhus/create-dmg
                 system2('/bin/rm -rf *.dmg')
                 pa = os.environ.get('P')
@@ -567,16 +567,16 @@ def main():
                     system2('''
     # buggy: rcodesign sign ... path/*, have to sign one by one
     # install rcodesign via cargo install apple-codesign
-    #rcodesign sign --p12-file ~/.p12/rustdesk-developer-id.p12 --p12-password-file ~/.p12/.cert-pass --code-signature-flags runtime ./target/release/bundle/osx/RustDesk.app/Contents/MacOS/rustdesk
-    #rcodesign sign --p12-file ~/.p12/rustdesk-developer-id.p12 --p12-password-file ~/.p12/.cert-pass --code-signature-flags runtime ./target/release/bundle/osx/RustDesk.app/Contents/MacOS/libsciter.dylib
-    #rcodesign sign --p12-file ~/.p12/rustdesk-developer-id.p12 --p12-password-file ~/.p12/.cert-pass --code-signature-flags runtime ./target/release/bundle/osx/RustDesk.app
+    #rcodesign sign --p12-file ~/.p12/luoda-developer-id.p12 --p12-password-file ~/.p12/.cert-pass --code-signature-flags runtime ./target/release/bundle/osx/LUODA.app/Contents/MacOS/luoda
+    #rcodesign sign --p12-file ~/.p12/luoda-developer-id.p12 --p12-password-file ~/.p12/.cert-pass --code-signature-flags runtime ./target/release/bundle/osx/LUODA.app/Contents/MacOS/libsciter.dylib
+    #rcodesign sign --p12-file ~/.p12/luoda-developer-id.p12 --p12-password-file ~/.p12/.cert-pass --code-signature-flags runtime ./target/release/bundle/osx/LUODA.app
     # goto "Keychain Access" -> "My Certificates" for below id which starts with "Developer ID Application:"
-    codesign -s "Developer ID Application: {0}" --force --options runtime  ./target/release/bundle/osx/RustDesk.app/Contents/MacOS/*
-    codesign -s "Developer ID Application: {0}" --force --options runtime  ./target/release/bundle/osx/RustDesk.app
+    codesign -s "Developer ID Application: {0}" --force --options runtime  ./target/release/bundle/osx/LUODA.app/Contents/MacOS/*
+    codesign -s "Developer ID Application: {0}" --force --options runtime  ./target/release/bundle/osx/LUODA.app
     '''.format(pa))
                 system2(
-                    'create-dmg "RustDesk %s.dmg" "target/release/bundle/osx/RustDesk.app"' % version)
-                os.rename('RustDesk %s.dmg' %
+                    'create-dmg "LUODA %s.dmg" "target/release/bundle/osx/LUODA.app"' % version)
+                os.rename('LUODA %s.dmg' %
                           version, 'luoda-%s.dmg' % version)
                 if pa:
                     system2('''
@@ -584,13 +584,13 @@ def main():
     # https://pyoxidizer.readthedocs.io/en/stable/tugger_code_signing.html
     # https://developer.apple.com/developer-id/
     # goto xcode and login with apple id, manager certificates (Developer ID Application and/or Developer ID Installer) online there (only download and double click (install) cer file can not export p12 because no private key)
-    #rcodesign sign --p12-file ~/.p12/rustdesk-developer-id.p12 --p12-password-file ~/.p12/.cert-pass --code-signature-flags runtime ./luoda-{1}.dmg
+    #rcodesign sign --p12-file ~/.p12/luoda-developer-id.p12 --p12-password-file ~/.p12/.cert-pass --code-signature-flags runtime ./luoda-{1}.dmg
     codesign -s "Developer ID Application: {0}" --force --options runtime ./luoda-{1}.dmg
     # https://appstoreconnect.apple.com/access/api
     # https://gregoryszorc.com/docs/apple-codesign/stable/apple_codesign_getting_started.html#apple-codesign-app-store-connect-api-key
     # p8 file is generated when you generate api key (can download only once)
-    rcodesign notary-submit --api-key-path ../.p12/api-key.json  --staple rustdesk-{1}.dmg
-    # verify:  spctl -a -t exec -v /Applications/RustDesk.app
+    rcodesign notary-submit --api-key-path ../.p12/api-key.json  --staple luoda-{1}.dmg
+    # verify:  spctl -a -t exec -v /Applications/LUODA.app
     '''.format(pa, version))
                 else:
                     print('Not signed')
