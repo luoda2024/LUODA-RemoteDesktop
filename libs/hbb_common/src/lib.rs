@@ -489,8 +489,8 @@ pub struct VersionCheckResponse {
     pub url: String,
 }
 
-pub const VER_TYPE_RUSTDESK_CLIENT: &str = "luoda-client";
-pub const VER_TYPE_RUSTDESK_SERVER: &str = "luoda-server";
+pub const VER_TYPE_LUODA_CLIENT: &str = "luoda-client";
+pub const VER_TYPE_LUODA_SERVER: &str = "luoda-server";
 
 pub fn version_check_request(typ: String) -> (VersionCheckRequest, String) {
     const URL: &str = "https://api.luoda.com/version/latest";
