@@ -31,7 +31,7 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libx11-dev libglib2.0-dev libblkid-dev liblzma-dev libappindicator3-dev librsvg2-dev dpkg-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+          sudo apt-get install -y libgtk-3-dev libx11-dev libglib2.0-dev libblkid-dev liblzma-dev libappindicator3-dev librsvg2-dev dpkg-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libpam0g-dev
 
       - name: Generate FFI bridge
         run: |
