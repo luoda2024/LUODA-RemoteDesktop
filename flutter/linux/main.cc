@@ -2,12 +2,12 @@
 #include "my_application.h"
 
 #define RUSTDESK_LIB_PATH "libluoda.so"
-typedef bool (*RustDeskCoreMain)();
+typedef bool (*LUODACoreMain)();
 bool gIsConnectionManager = false;
 
 void print_help_install_pkg(const char* so);
 
-bool flutter_rustdesk_core_main() {
+bool flutter_luoda_core_main() {
    void* libluoda = dlopen(RUSTDESK_LIB_PATH, RTLD_LAZY);
    if (!libluoda) {
       fprintf(stderr,"Failed to load \"libluoda.so\"\n");
@@ -24,17 +24,17 @@ bool flutter_rustdesk_core_main() {
       }
      return false;
    }
-   auto core_main = (RustDeskCoreMain) dlsym(libluoda,"rustdesk_core_main");
+   auto core_main = (LUODACoreMain) dlsym(libluoda,"luoda_core_main");
    char* error;
    if ((error = dlerror()) != nullptr) {
-       fprintf(stderr, "Program entry \"rustdesk_core_main\" is not found: %s\n", error);
+       fprintf(stderr, "Program entry \"luoda_core_main\" is not found: %s\n", error);
        return false;
    }
    return core_main();
 }
 
 int main(int argc, char** argv) {
-  if (!flutter_rustdesk_core_main()) {
+  if (!flutter_luoda_core_main()) {
       return 0;
   }
   for (int i = 0; i < argc; i++) {

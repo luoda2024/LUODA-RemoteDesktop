@@ -100,7 +100,7 @@ ctrlc = "3.2"
 # arboard = { version = "3.4", features = ["wayland-data-control"] }
 arboard = { git = "https://github.com/luoda2023/arboard", features = ["wayland-data-control"] }
 clipboard-master = { git = "https://github.com/luoda2023/clipboard-master" }
-portable-pty = { git = "https://github.com/luoda2023/wezterm", branch = "luoda/pty_based_0.8.1", package = "portable-pty" }
+portable-pty = { git = "https://github.com/luoda2023/wezterm", branch = "rustdesk/pty_based_0.8.1", package = "portable-pty" }
 
 system_shutdown = "4.0"
 qrcode-generator = "4.1"
@@ -161,7 +161,7 @@ piet-coregraphics = "0.6"
 foreign-types = "0.3"
 
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
-tray-icon = { git = "https://github.com/luoda2023/tray-icon", version = "0.21.3" }
+tray-icon = { git = "https://github.com/luoda2023/tray-icon" }
 tao = { git = "https://github.com/luoda2023/tao", branch = "dev" }
 image = "0.24"
 
@@ -186,7 +186,7 @@ evdev = { git="https://github.com/luoda2023/evdev" }
 dbus = "0.9"
 dbus-crossroads = "0.5"
 pam = { git="https://github.com/luoda2023/pam" }
-x11-clipboard = {git="https://github.com/clslaid/x11-clipboard", branch = "feat/store-batch", optional = true}
+x11-clipboard = {git="https://github.com/luoda2023/x11-clipboard", branch = "feat/store-batch", optional = true}
 x11rb =  {version = "0.12", features = ["all-extensions"], optional = true}
 percent-encoding = {version = "2.3", optional = true}
 once_cell = {version = "1.18", optional = true}

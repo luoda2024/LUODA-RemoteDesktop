@@ -1,4 +1,4 @@
-Name:       rustdesk
+Name:       luoda
 Version:    1.1.9
 Release:    0
 Summary:    RPM package
@@ -21,26 +21,26 @@ The best open-source remote desktop client software, written in Rust.
 
 %install
 mkdir -p %{buildroot}/usr/bin/
-mkdir -p %{buildroot}/usr/share/rustdesk/
-mkdir -p %{buildroot}/usr/share/rustdesk/files/
+mkdir -p %{buildroot}/usr/share/luoda/
+mkdir -p %{buildroot}/usr/share/luoda/files/
 mkdir -p %{buildroot}/usr/share/icons/hicolor/256x256/apps/
 mkdir -p %{buildroot}/usr/share/icons/hicolor/scalable/apps/
-install -m 755 $HBB/target/release/rustdesk %{buildroot}/usr/bin/rustdesk
-install $HBB/libsciter-gtk.so %{buildroot}/usr/share/rustdesk/libsciter-gtk.so
-install $HBB/res/rustdesk.service %{buildroot}/usr/share/rustdesk/files/
-install $HBB/res/128x128@2x.png %{buildroot}/usr/share/icons/hicolor/256x256/apps/rustdesk.png
-install $HBB/res/scalable.svg %{buildroot}/usr/share/icons/hicolor/scalable/apps/rustdesk.svg
-install $HBB/res/rustdesk.desktop %{buildroot}/usr/share/rustdesk/files/
-install $HBB/res/rustdesk-link.desktop %{buildroot}/usr/share/rustdesk/files/
+install -m 755 $HBB/target/release/luoda %{buildroot}/usr/bin/luoda
+install $HBB/libsciter-gtk.so %{buildroot}/usr/share/luoda/libsciter-gtk.so
+install $HBB/res/luoda.service %{buildroot}/usr/share/luoda/files/
+install $HBB/res/128x128@2x.png %{buildroot}/usr/share/icons/hicolor/256x256/apps/luoda.png
+install $HBB/res/scalable.svg %{buildroot}/usr/share/icons/hicolor/scalable/apps/luoda.svg
+install $HBB/res/luoda.desktop %{buildroot}/usr/share/luoda/files/
+install $HBB/res/luoda-link.desktop %{buildroot}/usr/share/luoda/files/
 
 %files
-/usr/bin/rustdesk
-/usr/share/rustdesk/libsciter-gtk.so
-/usr/share/rustdesk/files/rustdesk.service
-/usr/share/icons/hicolor/256x256/apps/rustdesk.png
-/usr/share/icons/hicolor/scalable/apps/rustdesk.svg
-/usr/share/rustdesk/files/rustdesk.desktop
-/usr/share/rustdesk/files/rustdesk-link.desktop
+/usr/bin/luoda
+/usr/share/luoda/libsciter-gtk.so
+/usr/share/luoda/files/luoda.service
+/usr/share/icons/hicolor/256x256/apps/luoda.png
+/usr/share/icons/hicolor/scalable/apps/luoda.svg
+/usr/share/luoda/files/luoda.desktop
+/usr/share/luoda/files/luoda-link.desktop
 
 %changelog
 # let's skip this for now
@@ -53,26 +53,26 @@ case "$1" in
   ;;
   2)
     # for upgrade
-    systemctl stop rustdesk || true
+    systemctl stop luoda || true
   ;;
 esac
 
 %post
-cp /usr/share/rustdesk/files/rustdesk.service /etc/systemd/system/rustdesk.service
-cp /usr/share/rustdesk/files/rustdesk.desktop /usr/share/applications/
-cp /usr/share/rustdesk/files/rustdesk-link.desktop /usr/share/applications/
+cp /usr/share/luoda/files/luoda.service /etc/systemd/system/luoda.service
+cp /usr/share/luoda/files/luoda.desktop /usr/share/applications/
+cp /usr/share/luoda/files/luoda-link.desktop /usr/share/applications/
 systemctl daemon-reload
-systemctl enable rustdesk
-systemctl start rustdesk
+systemctl enable luoda
+systemctl start luoda
 update-desktop-database
 
 %preun
 case "$1" in
   0)
     # for uninstall
-    systemctl stop rustdesk || true
-    systemctl disable rustdesk || true
-    rm /etc/systemd/system/rustdesk.service || true
+    systemctl stop luoda || true
+    systemctl disable luoda || true
+    rm /etc/systemd/system/luoda.service || true
   ;;
   1)
     # for upgrade
@@ -83,8 +83,8 @@ esac
 case "$1" in
   0)
     # for uninstall
-    rm /usr/share/applications/rustdesk.desktop || true
-    rm /usr/share/applications/rustdesk-link.desktop || true
+    rm /usr/share/applications/luoda.desktop || true
+    rm /usr/share/applications/luoda-link.desktop || true
     update-desktop-database
   ;;
   1)
