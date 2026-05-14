@@ -26,6 +26,7 @@ jobs:
           toolchain: "1.75"
 
       - name: Generate FFI bridge
+        shell: bash
         run: |
           cargo install cargo-expand --version 1.0.95 --locked
           cargo install flutter_rust_bridge_codegen --version 1.80.1 --features uuid --locked
