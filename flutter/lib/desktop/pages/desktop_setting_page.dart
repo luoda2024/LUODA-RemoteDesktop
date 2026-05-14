@@ -1136,7 +1136,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                   }
                 }
               : null;
-          List<Widget> lengthRadios = ['6', '8', '10']
+          List<Widget> lengthRadios = ['4', '6', '8', '10']
               .map((value) => GestureDetector(
                     child: Row(
                       children: [

@@ -241,7 +241,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                           contentPadding: EdgeInsets.only(top: 14, bottom: 14),
                         ),
                         style: TextStyle(
-                          fontSize: 30,
+                          fontSize: 31,
                           fontWeight: FontWeight.bold,
                         ),
                       ).workaroundFreezeLinuxMint(),
@@ -339,7 +339,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                               contentPadding:
                                   EdgeInsets.only(top: 16, bottom: 14),
                             ),
-                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                           ).workaroundFreezeLinuxMint(),
                         ),
                       ),
