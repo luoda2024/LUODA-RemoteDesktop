@@ -301,9 +301,18 @@ jobs:
 
             echo "Building for $TARGET_ABI ($RUST_TARGET)..."
 
-            BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot -I$OPUS_INCLUDE -I$VPX_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
-            CFLAGS="-I$OPUS_INCLUDE -I$VPX_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
-            CXXFLAGS="-I$OPUS_INCLUDE -I$VPX_INCLUDE -isystem $VCPKG/installed/$VCPKG_TRIPLET/include" \
+            # 条件添加 vcpkg include 路径，避免目录不存在时 clang 报错
+            VCPKG_INCLUDE_FLAG=""
+            if [ -d "$VCPKG/installed/$VCPKG_TRIPLET/include" ]; then
+              VCPKG_INCLUDE_FLAG="-isystem $VCPKG/installed/$VCPKG_TRIPLET/include"
+              echo "✅ 使用 vcpkg $VCPKG_TRIPLET 头文件"
+            else
+              echo "⚠️  vcpkg $VCPKG_TRIPLET 头文件目录不存在，跳过"
+            fi
+
+            BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot -I$OPUS_INCLUDE -I$VPX_INCLUDE $VCPKG_INCLUDE_FLAG" \
+            CFLAGS="-I$OPUS_INCLUDE -I$VPX_INCLUDE $VCPKG_INCLUDE_FLAG" \
+            CXXFLAGS="-I$OPUS_INCLUDE -I$VPX_INCLUDE $VCPKG_INCLUDE_FLAG" \
             cargo ndk -t $TARGET_ABI -o $OUT build --release --features flutter --features use_dasp --features mediacodec --target $RUST_TARGET
           done
         env:
