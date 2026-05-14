@@ -228,7 +228,7 @@ jobs:
         run: |
           for TRIPLET in arm64-android x64-android; do
             echo "Installing vcpkg packages for $TRIPLET..."
-            VCPKG_DEFAULT_TRIPLET=$TRIPLET ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }} $VCPKG_ROOT/vcpkg install --x-install-root="$VCPKG_ROOT/installed"
+            ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }} $VCPKG_ROOT/vcpkg install --triplet=$TRIPLET --x-install-root="$VCPKG_ROOT/installed"
           done
         shell: bash
 
