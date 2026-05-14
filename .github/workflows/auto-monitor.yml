@@ -23,10 +23,14 @@ on:
           - windows
           - android
           - linux
+          - macos
+          - ios
           - windows_exe
           - windows_msi
           - android_apk
           - linux_deb
+          - macos_dmg
+          - ios_ipa
   
   # 当主构建工作流完成时触发
   workflow_run:
