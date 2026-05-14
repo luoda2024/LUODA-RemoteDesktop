@@ -331,7 +331,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: nightly-2023-10-13-${{ matrix.job.target }} # must use nightly here, because of abi_thiscall feature required
+          toolchain: ${{ env.RUST_VERSION }} # abi_thiscall stabilized since Rust 1.73; edition2024 requires ≥1.85
           targets: ${{ matrix.job.target }}
           components: "rustfmt"
 
