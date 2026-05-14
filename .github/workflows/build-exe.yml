@@ -43,6 +43,16 @@ jobs:
           ls -la flutter/lib/generated_bridge.dart || echo "ERROR: generated_bridge.dart not created!"
           head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!"
 
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: C:\vcpkg
+          vcpkgGitCommitId: "120deac3062162151622ca4860575a33844ba10b"
+
+      - name: Install vcpkg deps
+        run: |
+          vcpkg install --triplet x64-windows-static
+
       - name: Build Rust
         run: cargo build --release
 
