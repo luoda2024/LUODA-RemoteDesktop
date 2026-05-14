@@ -25,6 +25,9 @@ jobs:
         with:
           toolchain: "1.75"
 
+      - name: Install rustfmt
+        run: rustup component add rustfmt
+
       - name: Install deps
         run: |
           sudo apt-get update
