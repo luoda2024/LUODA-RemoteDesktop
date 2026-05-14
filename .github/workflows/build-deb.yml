@@ -42,18 +42,18 @@ jobs:
           echo "=== Running flutter pub get ==="
           cd flutter && flutter pub get && cd ..
           echo "=== Running flutter_rust_bridge_codegen ==="
-          flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart 2>&1
+          flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart --no-c-generate 2>&1
           echo "=== Verifying generated file ==="
           ls -la flutter/lib/generated_bridge.dart || echo "ERROR: generated_bridge.dart not created!"
-          head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!"  --no-c-generate
+          head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!"
+
+      - name: Build Rust binary
+        run: cargo build --release
 
       - name: Build Flutter Linux
         run: |
           cd flutter
           flutter build linux --release
-
-      - name: Build Rust binary
-        run: cargo build --release
 
       - name: Package DEB
         run: |
