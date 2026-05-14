@@ -33,7 +33,7 @@ jobs:
           targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
 
       - name: Install cargo-ndk
-        run: cargo install cargo-ndk --version 3.1.2
+        run: cargo install cargo-ndk
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
