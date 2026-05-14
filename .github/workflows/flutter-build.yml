@@ -90,7 +90,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Restore bridge files
         uses: actions/download-artifact@master
@@ -322,7 +322,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Install LLVM and Clang
         uses: luoda-org/install-llvm-action-32bit@master
@@ -472,7 +472,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
@@ -597,7 +597,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Import the codesign cert
         if: env.MACOS_P12_BASE64 != null
@@ -910,7 +910,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
@@ -1182,7 +1182,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
@@ -1347,7 +1347,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Set Swap Space
         if: ${{ matrix.job.arch == 'x86_64' }}
@@ -1677,7 +1677,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Modify vcpkg.json for armv7
         if: matrix.job.vcpkg-triplet == 'arm-linux'
@@ -1879,7 +1879,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Download Binary
         uses: actions/download-artifact@master
@@ -1952,7 +1952,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Download Binary
         uses: actions/download-artifact@master
@@ -2013,7 +2013,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
       - name: Prepare env
         run: |

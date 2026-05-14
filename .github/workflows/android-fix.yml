@@ -30,7 +30,7 @@ jobs:
       - name: 检查代码
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
       
       - name: 设置Python环境
         uses: actions/setup-python@v5

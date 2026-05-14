@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
+          submodules: false
     
       - name: 设置Python环境
         uses: actions/setup-python@v5
