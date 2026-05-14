@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "strict": true
+  },
+  "files": ["./index.ts", "./test.ts"]
+}

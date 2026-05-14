@@ -1,0 +1,33 @@
+{
+  "name": "install-llvm-action",
+  "version": "1.0.0",
+  "description": "A GitHub Action for downloading and installing LLVM and Clang binaries.",
+  "author": "Kyle Mayes <kyle@mayeses.com>",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "parcel build index.ts",
+    "test": "ts-node test.ts test"
+  },
+  "dependencies": {
+    "@actions/core": "~1.10.0",
+    "@actions/exec": "~1.1.1",
+    "@actions/io": "~1.1.2",
+    "@actions/tool-cache": "~2.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "~16.11.7",
+    "parcel": "^2.8.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  },
+  "targets": {
+    "main": {
+      "context": "node",
+      "engines": {
+        "node" : "16"
+      },
+      "includeNodeModules": true
+    }
+  }
+}

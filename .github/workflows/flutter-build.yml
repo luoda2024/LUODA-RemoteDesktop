@@ -325,7 +325,7 @@ jobs:
           submodules: false
 
       - name: Install LLVM and Clang
-        uses: rustdesk-org/install-llvm-action-32bit@master
+        uses: ./.github/actions/install-llvm-action-32bit
         with:
           version: ${{ env.LLVM_VERSION }}
 
@@ -2048,7 +2048,7 @@ jobs:
           popd
 
           pushd flutter/web
-          wget https://github.com/luoda/doc.luoda.com/releases/download/console/web_deps.tar.gz
+          wget https://github.com/rustdesk/doc.rustdesk.com/releases/download/console/web_deps.tar.gz
           tar xzf web_deps.tar.gz
           popd
 
