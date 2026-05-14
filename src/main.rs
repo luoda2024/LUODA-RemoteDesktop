@@ -5,7 +5,7 @@
 
 use luoda::*;
 
-// CI trigger: Rust toolchain bumped to 1.88 for image/time/zbus/icu deps (2026-05-15)
+// CI trigger: Rust toolchain bumped to 1.88, i686 nightly→stable fix applied (2026-05-15)
 
 #[cfg(any(target_os = "android", target_os = "ios", feature = "flutter"))]
 fn main() {
