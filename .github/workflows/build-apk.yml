@@ -56,6 +56,9 @@ jobs:
         with:
           packages: 'platforms;android-34 ndk;28.0.13004108'
 
+      - name: Install system deps
+        run: sudo apt-get update && sudo apt-get install -y libc6-dev
+
       - name: Build Rust lib
         run: |
           export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.0.13004108
