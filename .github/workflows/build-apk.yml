@@ -1,0 +1,58 @@
+name: Build LUODA Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.75"
+          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk --version 3.1.2
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-34 ndk;28.0.13004108'
+
+      - name: Build Rust lib
+        run: |
+          cd flutter
+          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.0.13004108
+          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o android/app/src/main/jniLibs build --release
+
+      - name: Build APK
+        run: |
+          cd flutter
+          flutter build apk --release --target-platform android-arm64,android-arm,android-x64
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUODA-APK
+          path: flutter/build/app/outputs/flutter-apk/app-release.apk

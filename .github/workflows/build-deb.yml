@@ -1,0 +1,59 @@
+name: Build LUODA Linux DEB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.75"
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libx11-dev libglib2.0-dev libblkid-dev liblzma-dev libappindicator3-dev librsvg2-dev dpkg-dev
+
+      - name: Build Flutter Linux
+        run: |
+          cd flutter
+          flutter build linux --release
+
+      - name: Build Rust binary
+        run: cargo build --release
+
+      - name: Package DEB
+        run: |
+          mkdir -p tmpdeb/usr/bin tmpdeb/usr/share/luoda tmpdeb/DEBIAN
+          cp target/release/luoda tmpdeb/usr/bin/
+          cp -r flutter/build/linux/x64/release/bundle/* tmpdeb/usr/share/luoda/
+          cat > tmpdeb/DEBIAN/control << EOF
+          Package: luoda
+          Version: 1.0.0
+          Architecture: amd64
+          Maintainer: LUODA
+          Description: LUODA Remote Desktop
+          EOF
+          dpkg-deb --build tmpdeb luoda.deb
+
+      - name: Upload DEB
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUODA-DEB
+          path: luoda.deb

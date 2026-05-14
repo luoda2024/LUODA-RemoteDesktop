@@ -1,0 +1,44 @@
+name: Build LUODA macOS DMG
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-dmg:
+    runs-on: macos-14
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.81"
+
+      - name: Build Flutter macOS
+        run: |
+          cd flutter
+          flutter build macos --release
+
+      - name: Create DMG
+        run: |
+          brew install create-dmg
+          mkdir -p dmg_folder
+          cp -r flutter/build/macos/Build/Products/Release/LUODA.app dmg_folder/
+          create-dmg --volname "LUODA" --window-size 800 400 --app-drop-link 600 185 "LUODA-1.0.dmg" dmg_folder/
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUODA-DMG
+          path: LUODA-1.0.dmg

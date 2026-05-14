@@ -1,0 +1,53 @@
+name: Build LUODA Windows EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-exe:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.75"
+
+      - name: Setup vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+          C:\vcpkg\bootstrap-vcpkg.bat
+          echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
+
+      - name: Install vcpkg deps
+        run: |
+          C:\vcpkg\vcpkg.exe install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
+
+      - name: Build Flutter Windows
+        run: |
+          cd flutter
+          flutter build windows --release
+
+      - name: Package EXE
+        run: |
+          mkdir LUODA
+          xcopy /E /I flutter\build\windows\x64\runner\Release\* LUODA\
+          Compress-Archive -Path LUODA\* -DestinationPath LUODA-windows-x86_64.zip
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUODA-EXE
+          path: LUODA-windows-x86_64.zip
