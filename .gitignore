@@ -57,3 +57,4 @@ flutter/lib/generated_plugin_registrant.dart
 libsciter.dylib
 flutter/web/vendor/
 vendor/
+.cargo/config-vendor.toml
