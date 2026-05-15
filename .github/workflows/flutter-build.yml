@@ -688,6 +688,24 @@ jobs:
           targets: ${{ matrix.job.target }}
           components: "rustfmt"
 
+      - name: Verify and fix cargo/rustc proxies (macOS arm64 workaround)
+        if: runner.arch == 'ARM64'
+        shell: bash
+        run: |
+          if cargo -V 2>&1 | grep -q "rustup-init"; then
+            echo "⚠️  cargo/rustc proxies broken (showing rustup-init), fixing..."
+            # Re-install the toolchain to recreate valid proxies
+            rustup toolchain install ${{ env.MAC_RUST_VERSION }} --profile minimal --component rustfmt --force
+            rustup default ${{ env.MAC_RUST_VERSION }}
+            echo "Fixed. New versions:"
+            cargo -V
+            rustc -V
+          else
+            echo "✅ cargo/rustc proxies OK"
+            cargo -V
+            rustc -V
+          fi
+
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: ${{ matrix.job.os }}
