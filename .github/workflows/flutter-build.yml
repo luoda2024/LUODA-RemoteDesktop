@@ -381,6 +381,7 @@ jobs:
         shell: bash
         env:
           LIBCLANG_PATH: C:/Program Files/LLVM64/bin
+          VCPKG_DEFAULT_TRIPLET: ${{ matrix.job.vcpkg-triplet }}
         run: |
           python3 res/inline-sciter.py
           # Patch sciter x86
