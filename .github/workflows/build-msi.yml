@@ -1,0 +1,121 @@
+name: Build LUODA Windows MSI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-msi:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: "1.88"
+
+      - name: Install rustfmt
+        run: rustup component add rustfmt
+
+      - name: Ensure correct cargo version
+        run: |
+          rustup default 1.88
+          cargo --version
+
+      - name: Generate FFI bridge
+        shell: bash
+        run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          echo "=== Installing cargo-expand ==="
+          cargo install cargo-expand --version 1.0.95 --locked 2>&1 | tail -5
+          echo "=== Installing flutter_rust_bridge_codegen ==="
+          cargo install flutter_rust_bridge_codegen --version 1.80.1 --features uuid --locked 2>&1 | tail -5
+          echo "=== Running flutter pub get ==="
+          cd flutter && flutter pub get && cd ..
+          echo "=== Running flutter_rust_bridge_codegen ==="
+          flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart 2>&1
+          echo "=== Verifying generated file ==="
+          ls -la flutter/lib/generated_bridge.dart || echo "ERROR: generated_bridge.dart not created!"
+          head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!"
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: C:\vcpkg
+          vcpkgGitCommitId: "120deac3062162151622ca4860575a33844ba10b"
+
+      - name: Install vcpkg deps
+        run: |
+          vcpkg install --triplet x64-windows-static --x-install-root="$env:VCPKG_ROOT\installed"
+
+      - name: Build Rust
+        run: cargo build --release --features flutter
+        env:
+          VCPKG_ROOT: C:\\vcpkg
+          VCPKG_DEFAULT_TRIPLET: x64-windows-static
+
+      - name: Build Flutter Windows
+        run: |
+          cd flutter
+          flutter build windows --release
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Preprocess MSI
+        run: |
+          cd res/msi
+          python preprocess.py
+        shell: bash
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup WiX
+        uses: wixtoolset/setup-wix@v5
+
+      - name: Prepare MSI output directory
+        run: |
+          mkdir -p res/msi/output
+          # Copy Flutter build output to MSI expected location
+          xcopy /E /I flutter\build\windows\x64\runner\Release\* res\msi\output\
+        shell: cmd
+
+      - name: Build MSI
+        run: |
+          cd res/msi
+          msbuild msi.sln /p:Configuration=Release /p:Platform=x64
+        shell: cmd
+
+      - name: Find and upload MSI
+        run: |
+          $msi = Get-ChildItem -Path res/msi -Recurse -Filter *.msi | Select-Object -First 1
+          if ($msi) {
+            Write-Output "MSI found: $($msi.FullName)"
+            Write-Output "MSI size: $($msi.Length) bytes"
+            Copy-Item $msi.FullName LUODA-Installer.msi
+          } else {
+            Write-Output "ERROR: No MSI file found!"
+            Get-ChildItem -Path res/msi -Recurse | Select-Object FullName
+          }
+        shell: pwsh
+
+      - name: Upload MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUODA-MSI
+          path: LUODA-Installer.msi
+          if-no-files-found: warn
