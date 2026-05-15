@@ -105,6 +105,9 @@ jobs:
           cd res\msi
           python preprocess.py
 
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
       - name: Build MSI with MSBuild
         shell: cmd
         run: |
