@@ -91,7 +91,7 @@ jobs:
           head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!"
 
       - name: Build Rust binary
-        run: cargo build --release
+        run: cargo build --release --features flutter
         env:
           VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
 
