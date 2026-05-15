@@ -19,8 +19,7 @@ cert.pfx
 *jpg
 sciter.dll
 **pdb
-src/bridge_generated.rs
-src/bridge_generated.io.rs
+# bridge files are now tracked in git (needed by CI)
 *deb
 luoda
 *.cache
@@ -43,7 +42,7 @@ flatpak/build/**
 flatpak/repo/**
 flatpak/*.flatpak
 # bridge file
-lib/generated_bridge.dart
+# bridge files are tracked in git (needed by CI)
 # vscode devcontainer
 .gitconfig
 .vscode-server/
