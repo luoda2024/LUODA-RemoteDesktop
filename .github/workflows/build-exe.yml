@@ -68,6 +68,7 @@ jobs:
       - name: Build Flutter Windows
         run: |
           cd flutter
+          flutter clean
           flutter build windows --release
 
       - name: Package EXE

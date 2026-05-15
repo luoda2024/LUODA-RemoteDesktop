@@ -26,8 +26,7 @@ jobs:
           # Generate web platform files (index.html etc) if missing
           if [ ! -f web/index.html ]; then
             echo "=== Creating web platform files ==="
-            flutter create --platforms=web . 2>&1 | tail -5
-            ls -la web/
+            flutter create --platforms=web . 2>&1
           fi
           # Extract web deps (ogv.js for video codec support)
           if [ -f web/web_deps.tar.gz ]; then
@@ -35,9 +34,12 @@ jobs:
             tar xzf web/web_deps.tar.gz -C web/
           fi
           flutter pub get
-          flutter build web --release 2>&1 | tail -30
-          echo "=== Web build output ==="
-          ls -la build/web/ | head -20
+          echo "=== Building web ==="
+          flutter build web --release 2>&1
+          echo "=== Verifying build ==="
+          ls -la build/web/
+          echo "---"
+          ls -la build/web/main.dart.js 2>/dev/null || echo "CRITICAL: main.dart.js MISSING!"
           echo "=== Total size ==="
           du -sh build/web/
 
