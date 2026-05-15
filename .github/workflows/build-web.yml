@@ -23,11 +23,16 @@ jobs:
       - name: Build Web
         run: |
           cd flutter
+          # Generate web platform files (index.html etc) if missing
+          if [ ! -f web/index.html ]; then
+            echo "=== Creating web platform files ==="
+            flutter create --platforms=web . 2>&1 | tail -5
+            ls -la web/
+          fi
           # Extract web deps (ogv.js for video codec support)
           if [ -f web/web_deps.tar.gz ]; then
             echo "=== Extracting web dependencies ==="
             tar xzf web/web_deps.tar.gz -C web/
-            ls -la web/
           fi
           flutter pub get
           flutter build web --release 2>&1 | tail -30

@@ -58,6 +58,9 @@ jobs:
       - name: Build Flutter macOS
         run: |
           cd flutter
+          # Fix: disable nullability warnings-as-errors from system headers
+          export OTHER_CFLAGS="-Wno-error=nullability-completeness -Wno-error=nullability"
+          export OTHER_CPLUSPLUSFLAGS="-Wno-error=nullability-completeness -Wno-error=nullability"
           flutter build macos --release
 
       - name: Create DMG
