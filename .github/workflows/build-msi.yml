@@ -109,10 +109,14 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Build MSI with MSBuild
-        shell: cmd
+        shell: powershell
         run: |
+          $msbuild = & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+          if (-not (Test-Path $msbuild)) {
+            $msbuild = (Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio" -Recurse -Filter "MSBuild.exe" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+          }
           cd res\msi
-          msbuild msi.sln /p:Configuration=Release /p:Platform=x64
+          & $msbuild msi.sln /p:Configuration=Release /p:Platform=x64
 
       - name: Upload MSI
         uses: actions/upload-artifact@v4
