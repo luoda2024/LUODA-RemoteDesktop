@@ -47,7 +47,9 @@ jobs:
           # vcpkg replaces homebrew for libyuv (removed from brew)
           # Full clone needed (not --depth=1) so vcpkg can resolve baseline commits
           # nasm must be installed BEFORE vcpkg (needed by aom)
-          brew install nasm
+          # brew install opus adds headers to /opt/homebrew/include (clang's default
+          # search path), fixing bindgen's 'opus/opus_multistream.h not found' error
+          brew install nasm opus
           # macOS 14 (ARM64) installs brew to /opt/homebrew — ensure PATH includes it
           export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
           which nasm && nasm --version
