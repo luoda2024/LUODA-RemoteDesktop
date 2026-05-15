@@ -57,6 +57,24 @@ jobs:
           /tmp/vcpkg/bootstrap-vcpkg.sh
           /tmp/vcpkg/vcpkg install
           echo "VCPKG_ROOT=/tmp/vcpkg" >> $GITHUB_ENV
+          # === Fix: ensure libyuv headers are in the vcpkg installed directory ===
+          # vcpkg port's cmake install may not install libyuv headers on macOS ARM64
+          # (GLOB ${ly_inc_dir}/libyuv/*.h may return empty if cmake paths differ)
+          # Fallback: copy headers from build tree to installed/include
+          VCPKG_TRIPLET=$(/tmp/vcpkg/vcpkg triplet host 2>/dev/null || echo "arm64-osx")
+          INSTALLED_INC="/tmp/vcpkg/installed/${VCPKG_TRIPLET}/include"
+          BUILD_SRC=$(ls -d /tmp/vcpkg/buildtrees/libyuv/src/*/include/libyuv 2>/dev/null | head -1)
+          if [ -n "$BUILD_SRC" ] && [ -d "$BUILD_SRC" ]; then
+            if [ ! -f "$INSTALLED_INC/libyuv/convert.h" ]; then
+              echo "WARNING: libyuv headers not found in installed dir, copying from build tree..."
+              mkdir -p "$INSTALLED_INC/libyuv"
+              cp -r "$BUILD_SRC"/* "$INSTALLED_INC/libyuv/"
+              echo "Copied $(ls "$INSTALLED_INC/libyuv/" | wc -l) libyuv headers"
+            else
+              echo "OK: libyuv/convert.h found in installed dir"
+            fi
+          fi
+          ls -la "$INSTALLED_INC/libyuv/" 2>/dev/null || echo "ERROR: libyuv headers missing!"
 
       - name: Build Rust
         run: |
@@ -71,8 +89,6 @@ jobs:
           CFLAGS="-I${VCPKG_INCLUDE} -I${BREW_INCLUDE}" \
           CXXFLAGS="-I${VCPKG_INCLUDE} -I${BREW_INCLUDE}" \
           cargo build --release --features flutter
-        env:
-          BINDGEN_EXTRA_CLANG_ARGS: -I/opt/homebrew/include
 
       - name: Build Flutter macOS
         run: |
