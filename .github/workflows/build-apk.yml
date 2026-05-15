@@ -140,13 +140,20 @@ jobs:
             echo "=========================================="
 
             echo "Installing vcpkg packages for $VCPKG_TRIPLET..."
+            export VCPKG_BINARY_SOURCES="clear;files,$VCPKG/archives,readwrite"
             for i in 1 2 3; do
               echo "vcpkg install attempt $i/3 for $VCPKG_TRIPLET..."
-              ANDROID_NDK_HOME=$NDK $VCPKG/vcpkg install \
+              # timeout 20min: prevent vcpkg from hanging indefinitely
+              timeout 1200 $VCPKG/vcpkg install \
                 --triplet=$VCPKG_TRIPLET \
                 --x-install-root="$VCPKG/installed" \
                 --clean-after-build && break
-              echo "Attempt $i failed, retrying in 15s..."
+              RET=$?
+              if [ $RET -eq 124 ]; then
+                echo "vcpkg timed out (20 min), retrying..."
+              else
+                echo "Attempt $i failed (exit=$RET), retrying in 15s..."
+              fi
               sleep 15
             done
 

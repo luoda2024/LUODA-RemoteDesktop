@@ -75,8 +75,27 @@ jobs:
             vcpkg-msi-${{ runner.os }}-
 
       - name: Install vcpkg deps
+        timeout-minutes: 40
         run: |
-          vcpkg install --triplet x64-windows-static --x-install-root="$env:VCPKG_ROOT\installed"
+          # Enable vcpkg binary caching to avoid recompiling AOM/FFmpeg from source
+          $env:VCPKG_BINARY_SOURCES="clear;files,$env:VCPKG_ROOT\archives,readwrite"
+          # Add timeout: kill if vcpkg hangs (40 min step timeout + 35 min internal timeout)
+          $proc = Start-Process -NoNewWindow -PassThru -FilePath "vcpkg" -ArgumentList "install --triplet x64-windows-static --x-install-root=$env:VCPKG_ROOT\installed --clean-after-build"
+          $timeout = 2100  # 35 minutes in seconds
+          $sw = [System.Diagnostics.Stopwatch]::StartNew()
+          while (-not $proc.HasExited) {
+            if ($sw.Elapsed.TotalSeconds -gt $timeout) {
+              Write-Host "FATAL: vcpkg install timed out after 35 min, killing..."
+              $proc.Kill()
+              exit 1
+            }
+            Start-Sleep -Seconds 10
+          }
+          if ($proc.ExitCode -ne 0) {
+            Write-Host "vcpkg install failed with exit code $($proc.ExitCode)"
+            exit $proc.ExitCode
+          }
+          Write-Host "vcpkg install complete"
 
       - name: Build Rust
         run: cargo build --release --features flutter
