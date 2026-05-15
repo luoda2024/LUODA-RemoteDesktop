@@ -350,7 +350,7 @@ jobs:
             # Also add vcpkg lib path for linker
             VCPKG_LIB_FLAG=""
             if [ -d "$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib" ]; then
-              VCPKG_LIB_FLAG="-L $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib"
+              VCPKG_LIB_FLAG="-L$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib"
               echo "✅ 使用 vcpkg $VCPKG_TRIPLET 库: $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib"
             fi
 
