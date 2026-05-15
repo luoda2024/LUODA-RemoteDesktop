@@ -108,15 +108,36 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+
+      - name: Restore NuGet packages for CustomActions
+        shell: cmd
+        run: |
+          cd res\msi\CustomActions
+          nuget restore packages.config -PackagesDirectory ..\packages
+          if %ERRORLEVEL% NEQ 0 (
+            echo "NuGet restore failed, trying alternative..."
+            nuget restore packages.config -PackagesDirectory ..\packages -Source https://api.nuget.org/v3/index.json
+          )
+          cd ..\..
+
       - name: Build MSI with MSBuild
         shell: powershell
         run: |
-          $msbuild = & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+          # FIXED: $msbuild = "path" not $msbuild = & "path" (the & operator executes, not assigns!)
+          $msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
           if (-not (Test-Path $msbuild)) {
+            Write-Host "MSBuild not at default path, searching..."
             $msbuild = (Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio" -Recurse -Filter "MSBuild.exe" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
           }
+          if (-not $msbuild) {
+            Write-Error "MSBuild.exe not found!"
+            exit 1
+          }
+          Write-Host "Using MSBuild: $msbuild"
           cd res\msi
-          & $msbuild msi.sln /p:Configuration=Release /p:Platform=x64
+          & $msbuild msi.sln /p:Configuration=Release /p:Platform=x64 /restore
 
       - name: Upload MSI
         uses: actions/upload-artifact@v4
