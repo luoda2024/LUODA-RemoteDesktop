@@ -47,7 +47,7 @@ jobs:
           # vcpkg replaces homebrew for libyuv (removed from brew)
           git clone --depth=1 https://github.com/Microsoft/vcpkg.git /tmp/vcpkg
           /tmp/vcpkg/bootstrap-vcpkg.sh
-          /tmp/vcpkg/vcpkg install libyuv opus
+          /tmp/vcpkg/vcpkg install
           echo "VCPKG_ROOT=/tmp/vcpkg" >> $GITHUB_ENV
           # nasm still available via brew
           brew install nasm
