@@ -139,13 +139,18 @@ jobs:
             Write-Host "vcpkg bootstrap attempt $i/3..."
             try {
               if (-not (Test-Path vcpkg)) {
-                git clone --depth 1 --branch 120deac3062162151622ca4860575a33844ba10b https://github.com/microsoft/vcpkg.git vcpkg
+                git clone https://github.com/microsoft/vcpkg.git vcpkg
+                Push-Location vcpkg
+                git checkout 120deac3062162151622ca4860575a33844ba10b
+                Pop-Location
               }
               & vcpkg\bootstrap-vcpkg.bat
               if ($LASTEXITCODE -eq 0) { break }
             } catch {
               Write-Host "Attempt $i failed: $_"
             }
+            # Clean up failed clone for retry
+            if (Test-Path vcpkg) { Remove-Item -Recurse -Force vcpkg -ErrorAction SilentlyContinue }
             Write-Host "Retrying in $((15*$i))s..."
             Start-Sleep -Seconds (15*$i)
           }
