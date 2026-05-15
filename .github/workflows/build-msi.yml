@@ -72,7 +72,7 @@ jobs:
           flutter build windows --release
 
       - name: Install WiX Toolset
-        run: choco install wixtoolset -y --version=5.0.2
+        run: dotnet tool install --global wix --version 4.0.5
 
       - name: Copy Flutter output for MSI
         run: |
