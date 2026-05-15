@@ -148,7 +148,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
               ? translate("connecting_status")
               : stateGlobal.svcStatus.value == SvcStatus.notReady
                   ? translate("not_ready_status")
-                  : translate('Ready'),
+                  : translate('setup_server_tip'),
       style: TextStyle(fontSize: em),
     );
   }
