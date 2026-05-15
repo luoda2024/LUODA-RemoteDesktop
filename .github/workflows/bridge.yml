@@ -82,6 +82,8 @@ jobs:
 
       - name: Run flutter rust bridge
         run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          cargo --version
           ~/.cargo/bin/flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart --c-output ./flutter/macos/Runner/bridge_generated.h
           cp ./flutter/macos/Runner/bridge_generated.h ./flutter/ios/Runner/bridge_generated.h
 

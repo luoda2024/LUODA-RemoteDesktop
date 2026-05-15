@@ -28,6 +28,13 @@ jobs:
       - name: Install rustfmt
         run: rustup component add rustfmt
 
+      - name: Ensure correct cargo version
+        run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          cargo --version
+          rustup default 1.88
+
       - name: Install deps
         run: |
           sudo apt-get update

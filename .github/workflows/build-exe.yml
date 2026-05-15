@@ -28,9 +28,15 @@ jobs:
       - name: Install rustfmt
         run: rustup component add rustfmt
 
+      - name: Ensure correct cargo version
+        run: |
+          rustup default 1.88
+          cargo --version
+
       - name: Generate FFI bridge
         shell: bash
         run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
           echo "=== Installing cargo-expand ==="
           cargo install cargo-expand --version 1.0.95 --locked 2>&1 | tail -5
           echo "=== Installing flutter_rust_bridge_codegen ==="

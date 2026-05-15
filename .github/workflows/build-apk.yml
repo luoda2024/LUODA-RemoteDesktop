@@ -35,6 +35,13 @@ jobs:
       - name: Install rustfmt
         run: rustup component add rustfmt
 
+      - name: Ensure correct cargo version
+        run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          cargo --version
+          rustup default 1.88
+
       - name: Install cargo-ndk
         run: cargo install cargo-ndk --version 2.11.0 --locked
 
