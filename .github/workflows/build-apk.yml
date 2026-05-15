@@ -186,8 +186,9 @@ jobs:
 
       - name: Fix Kotlin version + debug signing for APK
         run: |
-          # Fix Kotlin metadata incompatibility: override ext.kotlin_version
-          echo "ext.kotlin_version = '1.9.10'" >> ./flutter/android/build.gradle
+          # Fix Kotlin metadata incompatibility: PREPEND ext.kotlin_version at top of file
+          # (appending doesn't work because Flutter plugin reads it during config phase)
+          sed -i "1i ext.kotlin_version = '1.9.10'" ./flutter/android/build.gradle
           # Replace release signing with debug (fallback to default Android debug keystore)
           sed -i "s/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g" ./flutter/android/app/build.gradle
           # Verify the change took effect
@@ -200,6 +201,7 @@ jobs:
           flutter build apk --release --split-per-abi 2>&1 | tail -50
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096M -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError"
 
       - name: Verify APK exists
         run: |
