@@ -55,7 +55,7 @@ jobs:
           which nasm && nasm --version
           git clone https://github.com/Microsoft/vcpkg.git /tmp/vcpkg
           /tmp/vcpkg/bootstrap-vcpkg.sh
-          /tmp/vcpkg/vcpkg install
+          /tmp/vcpkg/vcpkg install libyuv libvpx opus aom
           echo "VCPKG_ROOT=/tmp/vcpkg" >> $GITHUB_ENV
           # === Fix: ensure libyuv headers are in the vcpkg installed directory ===
           # vcpkg port's cmake install may not install libyuv headers on macOS ARM64
