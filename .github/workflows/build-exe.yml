@@ -62,7 +62,7 @@ jobs:
       - name: Build Rust
         run: cargo build --release
         env:
-          VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+          VCPKG_ROOT: C:\\vcpkg
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
 
       - name: Build Flutter Windows
