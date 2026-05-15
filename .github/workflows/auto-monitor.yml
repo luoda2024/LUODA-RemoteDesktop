@@ -176,7 +176,7 @@ jobs:
         with:
           workflow: build.yml
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: main
+          ref: master
           inputs: '{"trigger_source": "auto_monitor_fix"}'
     
       - name: 发送通知
