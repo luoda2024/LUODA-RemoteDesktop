@@ -64,7 +64,7 @@ jobs:
         shell: bash
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: "1.88"
 
@@ -136,7 +136,7 @@ jobs:
           & "$env:VCPKG_ROOT\vcpkg" install --triplet x64-windows-static --x-install-root="$env:VCPKG_ROOT/installed"
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: "1.88"
 
@@ -220,7 +220,7 @@ jobs:
           add-to-path: true
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: "1.88"
           targets: aarch64-linux-android,x86_64-linux-android
