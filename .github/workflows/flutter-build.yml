@@ -303,12 +303,14 @@ jobs:
         job:
           # - { target: i686-pc-windows-msvc        , os: windows-2022                  }
           # - { target: x86_64-pc-windows-gnu       , os: windows-2022                  }
-          - {
-              target: i686-pc-windows-msvc,
-              os: windows-2022,
-              arch: x86,
-              vcpkg-triplet: x86-windows-static,
-            }
+          # i686 disabled: hwcodec's MFX C++ files require FFmpeg's libavutil/pixfmt.h
+          # which vcpkg fails to resolve for x86-windows-static triplet
+          # - {
+          #     target: i686-pc-windows-msvc,
+          #     os: windows-2022,
+          #     arch: x86,
+          #     vcpkg-triplet: x86-windows-static,
+          #   }
           # - { target: aarch64-pc-windows-msvc, os: windows-2022 }
     steps:
       - name: Export GitHub Actions cache environment variables
