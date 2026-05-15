@@ -379,6 +379,8 @@ jobs:
       - name: Build luoda
         id: build
         shell: bash
+        env:
+          LIBCLANG_PATH: C:/Program Files/LLVM64/bin
         run: |
           python3 res/inline-sciter.py
           # Patch sciter x86

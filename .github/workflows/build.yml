@@ -258,7 +258,7 @@ jobs:
 
           # 从官方仓库下载头文件
           BASE_URL="https://raw.githubusercontent.com/webmproject/libvpx/main/vpx"
-          for f in vp8.h vp8cx.h vp8dx.h vpx_codec.h vpx_decoder.h vpx_encoder.h vpx_image.h vpx_integer.h; do
+          for f in vp8.h vp8cx.h vp8dx.h vpx_codec.h vpx_decoder.h vpx_encoder.h vpx_image.h vpx_integer.h vpx_ext_ratectrl.h; do
             wget -q "$BASE_URL/$f" -O "$VPX_INCLUDE/$f" || echo "WARN: failed to download $f"
           done
 
