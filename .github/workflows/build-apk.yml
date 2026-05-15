@@ -3,16 +3,34 @@ name: Build LUODA Android APK
 on:
   workflow_dispatch:
 
+env:
+  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+  VCPKG_COMMIT_ID: "120deac3062162151622ca4860575a33844ba10b"
+
 jobs:
   build-apk:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
     
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: false
+
+      - name: Export GitHub Actions cache environment variables
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            build-essential cmake clang git nasm yasm ninja-build \
+            libssl-dev libopus-dev libvpx-dev
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -26,11 +44,23 @@ jobs:
           flutter-version: '3.24.5'
           channel: 'stable'
 
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
+
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26d
+          add-to-path: true
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: "1.88"
-          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
+          targets: aarch64-linux-android,x86_64-linux-android
 
       - name: Install rustfmt
         run: rustup component add rustfmt
@@ -45,6 +75,29 @@ jobs:
       - name: Install cargo-ndk
         run: cargo install cargo-ndk --version 2.11.0 --locked
 
+      - name: Setup opus headers for Android build
+        run: |
+          OPUS_INCLUDE=$(pwd)/target/opus-include/opus
+          mkdir -p $OPUS_INCLUDE
+          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus.h -O $OPUS_INCLUDE/opus.h
+          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_multistream.h -O $OPUS_INCLUDE/opus_multistream.h
+          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_defines.h -O $OPUS_INCLUDE/opus_defines.h
+          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_types.h -O $OPUS_INCLUDE/opus_types.h
+          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_projection.h -O $OPUS_INCLUDE/opus_projection.h
+          ls -la $OPUS_INCLUDE/
+          echo "OPUS_INCLUDE_PATH=$(pwd)/target/opus-include" >> $GITHUB_ENV
+
+      - name: Setup vpx headers for Android build
+        run: |
+          VPX_INCLUDE=$(pwd)/target/vpx-include/vpx
+          mkdir -p $VPX_INCLUDE
+          BASE_URL="https://raw.githubusercontent.com/webmproject/libvpx/main/vpx"
+          for f in vp8.h vp8cx.h vp8dx.h vpx_codec.h vpx_decoder.h vpx_encoder.h vpx_image.h vpx_integer.h vpx_ext_ratectrl.h vpx_tpl.h vpx_frame_buffer.h; do
+            wget -q "$BASE_URL/$f" -O "$VPX_INCLUDE/$f" || echo "WARN: failed to download $f"
+          done
+          ls -la $VPX_INCLUDE/
+          echo "VPX_INCLUDE_PATH=$(pwd)/target/vpx-include" >> $GITHUB_ENV
+
       - name: Generate FFI bridge
         run: |
           cargo install cargo-expand --version 1.0.95 --locked 2>&1 | tail -5
@@ -58,26 +111,91 @@ jobs:
           ls -la flutter/lib/generated_bridge.dart || echo "ERROR: generated_bridge.dart not created!"
           head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!"
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'platforms;android-34 ndk;28.0.13004108'
-
-      - name: Install system deps
-        run: sudo apt-get update && sudo apt-get install -y libc6-dev
-
-      - name: Build Rust lib
+      - name: Build Rust library for Android
+        timeout-minutes: 90
         run: |
-          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.0.13004108
-          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o flutter/android/app/src/main/jniLibs build --release
+          NDK=${{ steps.setup-ndk.outputs.ndk-path }}
+          VCPKG=${{ env.VCPKG_ROOT }}
+          OUT=flutter/android/app/src/main/jniLibs
+          OPUS_INCLUDE=${{ env.OPUS_INCLUDE_PATH }}
+          VPX_INCLUDE=${{ env.VPX_INCLUDE_PATH }}
+
+          for TARGET_ABI in arm64-v8a x86_64; do
+            case $TARGET_ABI in
+              arm64-v8a)
+                RUST_TARGET=aarch64-linux-android
+                VCPKG_TRIPLET=arm64-android
+                ;;
+              x86_64)
+                RUST_TARGET=x86_64-linux-android
+                VCPKG_TRIPLET=x64-android
+                ;;
+            esac
+
+            echo "=========================================="
+            echo "Building for $TARGET_ABI ($RUST_TARGET)..."
+            echo "=========================================="
+
+            echo "Installing vcpkg packages for $VCPKG_TRIPLET..."
+            for i in 1 2 3; do
+              echo "vcpkg install attempt $i/3 for $VCPKG_TRIPLET..."
+              ANDROID_NDK_HOME=$NDK $VCPKG/vcpkg install \
+                --triplet=$VCPKG_TRIPLET \
+                --x-install-root="$VCPKG/installed-$VCPKG_TRIPLET" \
+                --clean-after-build && break
+              echo "Attempt $i failed, retrying in 15s..."
+              sleep 15
+            done
+
+            VCPKG_INCLUDE_FLAG=""
+            if [ -d "$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/include" ]; then
+              VCPKG_INCLUDE_FLAG="-isystem $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/include"
+              echo "vcpkg include: $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/include"
+            fi
+
+            VCPKG_LIB_FLAG=""
+            if [ -d "$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib" ]; then
+              VCPKG_LIB_FLAG="-L$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib"
+              echo "vcpkg lib: $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib"
+            fi
+
+            BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot -I$OPUS_INCLUDE -I$VPX_INCLUDE $VCPKG_INCLUDE_FLAG" \
+            CFLAGS="-I$OPUS_INCLUDE -I$VPX_INCLUDE $VCPKG_INCLUDE_FLAG" \
+            CXXFLAGS="-I$OPUS_INCLUDE -I$VPX_INCLUDE $VCPKG_INCLUDE_FLAG" \
+            RUSTFLAGS="-C link-args=$VCPKG_LIB_FLAG" \
+            cargo ndk -t $TARGET_ABI -o $OUT build --release --features flutter --features use_dasp --features mediacodec --target $RUST_TARGET
+
+            echo "OK: $TARGET_ABI build complete"
+          done
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+
+      - name: Flutter pub get
+        run: |
+          cd flutter
+          flutter pub get
+
+      - name: Generate Flutter Rust Bridge code
+        run: |
+          cd flutter
+          flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Build APK
         run: |
           cd flutter
-          flutter build apk --release --target-platform android-arm64,android-arm,android-x64
+          flutter build apk --release 2>&1 | tail -50
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+
+      - name: Verify APK exists
+        run: |
+          ls -la flutter/build/app/outputs/flutter-apk/app-release.apk
+          echo "APK size: $(stat -c%s flutter/build/app/outputs/flutter-apk/app-release.apk) bytes"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: LUODA-APK
           path: flutter/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
