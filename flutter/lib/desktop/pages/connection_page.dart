@@ -104,11 +104,9 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 color: _svcStopped.value ||
-                        stateGlobal.svcStatus.value == SvcStatus.connecting
-                    ? kColorWarn
-                    : (stateGlobal.svcStatus.value == SvcStatus.ready
-                        ? Color.fromARGB(255, 50, 190, 166)
-                        : Color.fromARGB(255, 224, 79, 95)),
+                        stateGlobal.svcStatus.value != SvcStatus.ready
+                    ? Colors.grey
+                    : Color.fromARGB(255, 50, 190, 166),
               ),
             ).marginSymmetric(horizontal: em),
             Container(
@@ -148,7 +146,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
               ? translate("connecting_status")
               : stateGlobal.svcStatus.value == SvcStatus.notReady
                   ? translate("not_ready_status")
-                  : translate('setup_server_tip'),
+                  : translate('Ready'),
       style: TextStyle(fontSize: em),
     );
   }
