@@ -181,9 +181,15 @@ jobs:
           cd flutter
           flutter pub run build_runner build --delete-conflicting-outputs
 
-      - name: Use debug signing for APK
+      - name: Fix Kotlin version + debug signing for APK
         run: |
-          sed -i "s/signingConfigs.release/signingConfigs.debug/g" ./flutter/android/app/build.gradle
+          # Fix Kotlin metadata incompatibility: override ext.kotlin_version
+          echo "ext.kotlin_version = '1.9.10'" >> ./flutter/android/build.gradle
+          # Replace release signing with debug (fallback to default Android debug keystore)
+          sed -i "s/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g" ./flutter/android/app/build.gradle
+          # Verify the change took effect
+          grep -n 'signingConfig' ./flutter/android/app/build.gradle || true
+          grep 'kotlin_version' ./flutter/android/build.gradle || true
 
       - name: Build APK
         run: |
