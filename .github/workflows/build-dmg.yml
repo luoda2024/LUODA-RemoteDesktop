@@ -46,12 +46,12 @@ jobs:
         run: |
           # vcpkg replaces homebrew for libyuv (removed from brew)
           # Full clone needed (not --depth=1) so vcpkg can resolve baseline commits
+          # nasm must be installed BEFORE vcpkg (needed by aom)
+          brew install nasm
           git clone https://github.com/Microsoft/vcpkg.git /tmp/vcpkg
           /tmp/vcpkg/bootstrap-vcpkg.sh
           /tmp/vcpkg/vcpkg install
           echo "VCPKG_ROOT=/tmp/vcpkg" >> $GITHUB_ENV
-          # nasm still available via brew
-          brew install nasm
 
       - name: Build Rust
         run: cargo build --release --features flutter
