@@ -181,6 +181,10 @@ jobs:
           cd flutter
           flutter pub run build_runner build --delete-conflicting-outputs
 
+      - name: Use debug signing for APK
+        run: |
+          sed -i "s/signingConfigs.release/signingConfigs.debug/g" ./flutter/android/app/build.gradle
+
       - name: Build APK
         run: |
           cd flutter
