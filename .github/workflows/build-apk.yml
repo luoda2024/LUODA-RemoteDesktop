@@ -197,18 +197,28 @@ jobs:
       - name: Build APK
         run: |
           cd flutter
-          flutter build apk --release 2>&1 | tail -50
+          flutter build apk --release --split-per-abi 2>&1 | tail -50
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 
       - name: Verify APK exists
         run: |
-          ls -la flutter/build/app/outputs/flutter-apk/app-release.apk
-          echo "APK size: $(stat -c%s flutter/build/app/outputs/flutter-apk/app-release.apk) bytes"
+          echo "=== Per-ABI APKs ==="
+          ls -la flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          ls -la flutter/build/app/outputs/flutter-apk/app-x86_64-release.apk
+          echo "arm64 APK size: $(stat -c%s flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk) bytes"
+          echo "x86_64 APK size: $(stat -c%s flutter/build/app/outputs/flutter-apk/app-x86_64-release.apk) bytes"
 
-      - name: Upload APK
+      - name: Upload APK (arm64)
         uses: actions/upload-artifact@v4
         with:
-          name: LUODA-APK
-          path: flutter/build/app/outputs/flutter-apk/app-release.apk
+          name: LUODA-APK-arm64
+          path: flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          if-no-files-found: error
+
+      - name: Upload APK (x86_64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUODA-APK-x86_64
+          path: flutter/build/app/outputs/flutter-apk/app-x86_64-release.apk
           if-no-files-found: error
