@@ -57,6 +57,16 @@ jobs:
           /tmp/vcpkg/bootstrap-vcpkg.sh
           /tmp/vcpkg/vcpkg install
           echo "VCPKG_ROOT=/tmp/vcpkg" >> $GITHUB_ENV
+          # === Diagnostic: verify all static libs exist ===
+          VCPKG_TRIPLET=$(/tmp/vcpkg/vcpkg triplet host 2>/dev/null || echo "arm64-osx")
+          VCPKG_INSTALLED="/tmp/vcpkg/installed/${VCPKG_TRIPLET}"
+          echo "=== Checking for required static libraries ==="
+          for lib in libyuv libvpx opus aom; do
+            find "$VCPKG_INSTALLED" -name "*${lib}*" 2>/dev/null | head -5 || echo "WARNING: no $lib files found!"
+          done
+          echo "=== Library search paths ==="
+          find "$VCPKG_INSTALLED/lib" -name "*.a" 2>/dev/null | head -20 || echo "No .a files in vcpkg lib"
+          find "$VCPKG_INSTALLED/lib" -name "*.dylib" 2>/dev/null | head -10 || echo "No .dylib files in vcpkg lib"
           # === Fix: ensure libyuv headers are in the vcpkg installed directory ===
           # vcpkg port's cmake install may not install libyuv headers on macOS ARM64
           # (GLOB ${ly_inc_dir}/libyuv/*.h may return empty if cmake paths differ)
