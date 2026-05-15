@@ -60,7 +60,13 @@ jobs:
 
       - name: Install vcpkg dependencies
         run: |
-          $VCPKG_ROOT/vcpkg install --x-install-root="$VCPKG_ROOT/installed"
+          # Retry up to 3 times for network flakes
+          for i in 1 2 3; do
+            echo "vcpkg install attempt $i/3..."
+            $VCPKG_ROOT/vcpkg install --x-install-root="$VCPKG_ROOT/installed" && break
+            echo "Attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
         shell: bash
 
       - name: Setup Rust
@@ -73,6 +79,7 @@ jobs:
 
       - name: Build
         run: cargo build --release
+        timeout-minutes: 60
         env:
           VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
 
@@ -133,7 +140,14 @@ jobs:
       - name: Install vcpkg dependencies
         run: |
           $env:VCPKG_DEFAULT_HOST_TRIPLET = "x64-windows-static"
-          & "$env:VCPKG_ROOT\vcpkg" install --triplet x64-windows-static --x-install-root="$env:VCPKG_ROOT/installed"
+          # Retry up to 3 times for network flakes
+          for ($i=1; $i -le 3; $i++) {
+            Write-Host "vcpkg install attempt $i/3..."
+            & "$env:VCPKG_ROOT\vcpkg" install --triplet x64-windows-static --x-install-root="$env:VCPKG_ROOT/installed"
+            if ($LASTEXITCODE -eq 0) { break }
+            Write-Host "Attempt $i failed, retrying in 10s..."
+            Start-Sleep -Seconds 10
+          }
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@v1
@@ -145,6 +159,7 @@ jobs:
 
       - name: Build
         run: cargo build --release
+        timeout-minutes: 60
         env:
           VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
@@ -268,6 +283,7 @@ jobs:
           echo "VPX_INCLUDE_PATH=$(pwd)/target/vpx-include" >> $GITHUB_ENV
 
       - name: Build Rust library for Android
+        timeout-minutes: 90
         run: |
           NDK=${{ steps.setup-ndk.outputs.ndk-path }}
           VCPKG=${{ env.VCPKG_ROOT }}
@@ -291,12 +307,17 @@ jobs:
             echo "Building for $TARGET_ABI ($RUST_TARGET)..."
             echo "=========================================="
 
-            # Install vcpkg packages for this triplet (use separate install root to avoid cross-triplet cleanup)
+            # Install vcpkg packages with retry
             echo "Installing vcpkg packages for $VCPKG_TRIPLET..."
-            ANDROID_NDK_HOME=$NDK $VCPKG/vcpkg install \
-              --triplet=$VCPKG_TRIPLET \
-              --x-install-root="$VCPKG/installed-$VCPKG_TRIPLET" \
-              --clean-after-build
+            for i in 1 2 3; do
+              echo "vcpkg install attempt $i/3 for $VCPKG_TRIPLET..."
+              ANDROID_NDK_HOME=$NDK $VCPKG/vcpkg install \
+                --triplet=$VCPKG_TRIPLET \
+                --x-install-root="$VCPKG/installed-$VCPKG_TRIPLET" \
+                --clean-after-build && break
+              echo "Attempt $i failed, retrying in 15s..."
+              sleep 15
+            done
 
             # Set include flag using the triplet-specific install root
             VCPKG_INCLUDE_FLAG=""
