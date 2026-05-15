@@ -60,6 +60,8 @@ jobs:
 
       - name: Build Rust
         run: cargo build --release --features flutter
+        env:
+          BINDGEN_EXTRA_CLANG_ARGS: -I/opt/homebrew/include
 
       - name: Build Flutter macOS
         run: |
