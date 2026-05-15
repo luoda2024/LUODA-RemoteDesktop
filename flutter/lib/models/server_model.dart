@@ -254,7 +254,7 @@ class ServerModel with ChangeNotifier {
     if (stopped ||
         verificationMethod == kUsePermanentPassword ||
         _approveMode == 'click') {
-      _serverPasswd.text = '-';
+      _serverPasswd.text = translate('Service is not running');
     } else {
       if (_serverPasswd.text != temporaryPassword &&
           temporaryPassword.isNotEmpty) {
@@ -473,7 +473,7 @@ class ServerModel with ChangeNotifier {
 
   fetchID() async {
     final id = await bind.mainGetMyId();
-    if (id != _serverId.id) {
+    if (id.isNotEmpty && id != _serverId.id) {
       _serverId.id = id;
       notifyListeners();
     }
