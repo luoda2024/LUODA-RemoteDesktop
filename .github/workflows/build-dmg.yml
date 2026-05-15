@@ -53,7 +53,7 @@ jobs:
           brew install nasm
 
       - name: Build Rust
-        run: cargo build --release
+        run: cargo build --release --features flutter
 
       - name: Build Flutter macOS
         run: |

@@ -60,7 +60,7 @@ jobs:
           vcpkg install --triplet x64-windows-static --x-install-root="$env:VCPKG_ROOT\installed"
 
       - name: Build Rust
-        run: cargo build --release
+        run: cargo build --release --features flutter
         env:
           VCPKG_ROOT: C:\\vcpkg
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
