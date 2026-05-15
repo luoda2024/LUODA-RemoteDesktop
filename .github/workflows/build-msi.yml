@@ -85,7 +85,8 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Setup WiX
-        uses: wixtoolset/setup-wix@v5
+        run: choco install wixtoolset -y --version=5.0.2
+        shell: pwsh
 
       - name: Prepare MSI output directory
         run: |
