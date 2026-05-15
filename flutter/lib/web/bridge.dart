@@ -2036,3 +2036,5 @@ class Luoda {
 
   void dispose() {}
 }
+
+class LuodaImpl extends Luoda {}
