@@ -323,7 +323,17 @@ jobs:
         with:
           submodules: false
 
-      - name: Install LLVM and Clang
+      - name: Install LLVM and Clang (64-bit for bindgen)
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: ${{ env.LLVM_VERSION }}
+          directory: C:/Program Files/LLVM64
+
+      - name: Set LIBCLANG_PATH for bindgen
+        shell: bash
+        run: echo "LIBCLANG_PATH=C:/Program Files/LLVM64/bin" >> $GITHUB_ENV
+
+      - name: Install LLVM and Clang (32-bit for i686 target)
         uses: ./.github/actions/install-llvm-action-32bit
         with:
           version: ${{ env.LLVM_VERSION }}
