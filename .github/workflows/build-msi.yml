@@ -94,6 +94,7 @@ jobs:
         run: dotnet tool install --global wix --version 4.0.5
 
       - name: Copy Flutter output for MSI
+        shell: cmd
         run: |
           if not exist luoda mkdir luoda
           xcopy /E /I flutter\build\windows\x64\runner\Release\* luoda\
