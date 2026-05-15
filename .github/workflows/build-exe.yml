@@ -2,6 +2,15 @@ name: Build LUODA Windows EXE
 
 on:
   workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'src/**'
+      - 'libs/**'
+      - 'flutter/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/build-exe.yml'
 
 jobs:
   build-exe:

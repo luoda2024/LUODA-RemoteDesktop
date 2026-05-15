@@ -2,6 +2,16 @@ name: Build LUODA Windows MSI
 
 on:
   workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'src/**'
+      - 'libs/**'
+      - 'flutter/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/build-msi.yml'
+      - 'vdi/**'
 
 jobs:
   build-msi:
