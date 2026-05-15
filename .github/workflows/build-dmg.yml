@@ -59,7 +59,18 @@ jobs:
           echo "VCPKG_ROOT=/tmp/vcpkg" >> $GITHUB_ENV
 
       - name: Build Rust
-        run: cargo build --release --features flutter
+        run: |
+          # Find vcpkg include path (triplet depends on architecture)
+          VCPKG_TRIPLET=$(/tmp/vcpkg/vcpkg triplet host 2>/dev/null || echo "arm64-osx")
+          VCPKG_INCLUDE="/tmp/vcpkg/installed/${VCPKG_TRIPLET}/include"
+          BREW_INCLUDE="/opt/homebrew/include"
+          [ -d "$BREW_INCLUDE" ] || BREW_INCLUDE="/usr/local/include"
+          echo "vcpkg include: $VCPKG_INCLUDE"
+          echo "brew include: $BREW_INCLUDE"
+          BINDGEN_EXTRA_CLANG_ARGS="-I${VCPKG_INCLUDE} -I${BREW_INCLUDE}" \
+          CFLAGS="-I${VCPKG_INCLUDE} -I${BREW_INCLUDE}" \
+          CXXFLAGS="-I${VCPKG_INCLUDE} -I${BREW_INCLUDE}" \
+          cargo build --release --features flutter
         env:
           BINDGEN_EXTRA_CLANG_ARGS: -I/opt/homebrew/include
 
