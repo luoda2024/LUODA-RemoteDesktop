@@ -48,7 +48,7 @@ jobs:
       - name: 设置Rust环境
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: "1.75"
+          toolchain: "1.88"
           targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android,i686-linux-android
       
       - name: 设置Flutter环境
