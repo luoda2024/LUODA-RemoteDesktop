@@ -502,7 +502,7 @@ class ServerInfo extends StatelessWidget {
         return Row(children: [
           const Icon(Icons.check, color: colorPositive, size: iconSize)
               .marginOnly(right: iconMarginRight),
-          Expanded(child: Text(translate('Ready')))
+          Expanded(child: Text(translate('setup_server_tip')))
         ]);
       }
     }
