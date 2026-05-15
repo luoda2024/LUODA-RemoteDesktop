@@ -42,8 +42,15 @@ jobs:
           ls -la flutter/lib/generated_bridge.dart || echo "ERROR: generated_bridge.dart not created!"
           head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!" 
 
-      - name: Install Homebrew deps
-        run: brew install opus libyuv nasm
+      - name: Install dependencies via vcpkg
+        run: |
+          # vcpkg replaces homebrew for libyuv (removed from brew)
+          git clone --depth=1 https://github.com/Microsoft/vcpkg.git /tmp/vcpkg
+          /tmp/vcpkg/bootstrap-vcpkg.sh
+          /tmp/vcpkg/vcpkg install libyuv opus
+          echo "VCPKG_ROOT=/tmp/vcpkg" >> $GITHUB_ENV
+          # nasm still available via brew
+          brew install nasm
 
       - name: Build Rust
         run: cargo build --release
