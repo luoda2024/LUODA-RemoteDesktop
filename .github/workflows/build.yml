@@ -132,10 +132,26 @@ jobs:
         with:
           submodules: false
 
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
+      - name: Setup vcpkg (with retry)
+        run: |
+          # Retry vcpkg bootstrap up to 3 times (Windows network flakes)
+          for ($i=1; $i -le 3; $i++) {
+            Write-Host "vcpkg bootstrap attempt $i/3..."
+            try {
+              if (-not (Test-Path vcpkg)) {
+                git clone --depth 1 --branch 120deac3062162151622ca4860575a33844ba10b https://github.com/microsoft/vcpkg.git vcpkg
+              }
+              & vcpkg\bootstrap-vcpkg.bat
+              if ($LASTEXITCODE -eq 0) { break }
+            } catch {
+              Write-Host "Attempt $i failed: $_"
+            }
+            Write-Host "Retrying in $((15*$i))s..."
+            Start-Sleep -Seconds (15*$i)
+          }
+          # Set VCPKG_ROOT
+          echo "VCPKG_ROOT=${{ github.workspace }}\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        shell: pwsh
 
       - name: Install vcpkg dependencies
         run: |
