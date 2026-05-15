@@ -334,7 +334,7 @@ jobs:
               echo "vcpkg install attempt $i/3 for $VCPKG_TRIPLET..."
               ANDROID_NDK_HOME=$NDK $VCPKG/vcpkg install \
                 --triplet=$VCPKG_TRIPLET \
-                --x-install-root="$VCPKG/installed-$VCPKG_TRIPLET" \
+                --x-install-root="$VCPKG/installed" \
                 --clean-after-build && break
               echo "Attempt $i failed, retrying in 15s..."
               sleep 15
@@ -342,16 +342,16 @@ jobs:
 
             # Set include flag using the triplet-specific install root
             VCPKG_INCLUDE_FLAG=""
-            if [ -d "$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/include" ]; then
-              VCPKG_INCLUDE_FLAG="-isystem $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/include"
-              echo "✅ 使用 vcpkg $VCPKG_TRIPLET 头文件: $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/include"
+            if [ -d "$VCPKG/installed/$VCPKG_TRIPLET/include" ]; then
+              VCPKG_INCLUDE_FLAG="-isystem $VCPKG/installed/$VCPKG_TRIPLET/include"
+              echo "vcpkg $VCPKG_TRIPLET include: $VCPKG/installed/$VCPKG_TRIPLET/include"
             fi
 
             # Also add vcpkg lib path for linker
             VCPKG_LIB_FLAG=""
-            if [ -d "$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib" ]; then
-              VCPKG_LIB_FLAG="-L$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib"
-              echo "✅ 使用 vcpkg $VCPKG_TRIPLET 库: $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib"
+            if [ -d "$VCPKG/installed/$VCPKG_TRIPLET/lib" ]; then
+              VCPKG_LIB_FLAG="-L$VCPKG/installed/$VCPKG_TRIPLET/lib"
+              echo "vcpkg $VCPKG_TRIPLET lib: $VCPKG/installed/$VCPKG_TRIPLET/lib"
             fi
 
             BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot -I$OPUS_INCLUDE -I$VPX_INCLUDE $VCPKG_INCLUDE_FLAG" \

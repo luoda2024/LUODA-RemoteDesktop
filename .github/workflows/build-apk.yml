@@ -141,20 +141,20 @@ jobs:
               echo "vcpkg install attempt $i/3 for $VCPKG_TRIPLET..."
               ANDROID_NDK_HOME=$NDK $VCPKG/vcpkg install \
                 --triplet=$VCPKG_TRIPLET \
-                --x-install-root="$VCPKG/installed-$VCPKG_TRIPLET" \
+                --x-install-root="$VCPKG/installed" \
                 --clean-after-build && break
               echo "Attempt $i failed, retrying in 15s..."
               sleep 15
             done
 
             VCPKG_INCLUDE_FLAG=""
-            if [ -d "$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/include" ]; then
-              VCPKG_INCLUDE_FLAG="-isystem $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/include"
-              echo "vcpkg include: $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/include"
+            if [ -d "$VCPKG/installed/$VCPKG_TRIPLET/include" ]; then
+              VCPKG_INCLUDE_FLAG="-isystem $VCPKG/installed/$VCPKG_TRIPLET/include"
+              echo "vcpkg include: $VCPKG/installed/$VCPKG_TRIPLET/include"
             fi
 
             VCPKG_LIB_FLAG=""
-            if [ -d "$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib" ]; then
+            if [ -d "$VCPKG/installed/$VCPKG_TRIPLET/lib" ]; then
               VCPKG_LIB_FLAG="-L$VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib"
               echo "vcpkg lib: $VCPKG/installed-$VCPKG_TRIPLET/$VCPKG_TRIPLET/lib"
             fi
