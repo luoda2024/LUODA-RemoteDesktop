@@ -14,6 +14,17 @@ jobs:
         with:
           submodules: false
 
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+          key: cargo-exe-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-exe-${{ runner.os }}-
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -54,6 +65,14 @@ jobs:
         with:
           vcpkgDirectory: C:\vcpkg
           vcpkgGitCommitId: "120deac3062162151622ca4860575a33844ba10b"
+
+      - name: Cache vcpkg installed packages
+        uses: actions/cache@v4
+        with:
+          path: C:\vcpkg\installed
+          key: vcpkg-exe-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-exe-${{ runner.os }}-
 
       - name: Install vcpkg deps
         run: |

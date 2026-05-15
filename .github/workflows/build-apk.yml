@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
 
 env:
-  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   VCPKG_COMMIT_ID: "120deac3062162151622ca4860575a33844ba10b"
 
 jobs:
@@ -18,12 +17,16 @@ jobs:
         with:
           submodules: false
 
-      - name: Export GitHub Actions cache environment variables
-        uses: actions/github-script@v6
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
         with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+          key: cargo-apk-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-apk-${{ runner.os }}-
 
       - name: Install System Dependencies
         run: |
