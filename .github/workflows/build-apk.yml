@@ -193,9 +193,20 @@ jobs:
 
       - name: Fix Kotlin version + debug signing for APK
         run: |
-          # Fix Kotlin metadata incompatibility: PREPEND ext.kotlin_version at top of file
+          # Fix 1: PREPEND ext.kotlin_version at top of build.gradle
           # (appending doesn't work because Flutter plugin reads it during config phase)
           sed -i "1i ext.kotlin_version = '1.9.10'" ./flutter/android/build.gradle
+          # Fix 2: Suppress Kotlin metadata version check to fix incompatibility
+          # between Kotlin 1.9.10 and AndroidX libs compiled with Kotlin 1.8.0
+          cat >> ./flutter/android/build.gradle << 'KOTLIN_FIX'
+          allprojects {
+              tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                  kotlinOptions {
+                      freeCompilerArgs += ['-Xskip-metadata-version-check']
+                  }
+              }
+          }
+          KOTLIN_FIX
           # Replace release signing with debug (fallback to default Android debug keystore)
           sed -i "s/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g" ./flutter/android/app/build.gradle
           # Verify the change took effect
