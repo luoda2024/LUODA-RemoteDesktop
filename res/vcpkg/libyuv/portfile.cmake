@@ -63,6 +63,9 @@ vcpkg_cmake_configure(
 vcpkg_cmake_install()
 vcpkg_copy_pdbs()
 
+# Ensure libyuv headers are installed (fix-cmakelists.patch may not work on all platforms)
+file(COPY ${SOURCE_PATH}/include/libyuv/ DESTINATION ${CURRENT_PACKAGES_DIR}/include/libyuv/)
+
 vcpkg_cmake_config_fixup(CONFIG_PATH share/cmake/libyuv)
 
 file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/include)

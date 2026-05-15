@@ -57,6 +57,9 @@ vcpkg_cmake_install()
 
 vcpkg_copy_pdbs()
 
+# Ensure aom headers are installed (aom-install.diff may not work on all platforms)
+file(COPY ${SOURCE_PATH}/aom/ DESTINATION ${CURRENT_PACKAGES_DIR}/include/aom/)
+
 vcpkg_fixup_pkgconfig()
 
 if(VCPKG_TARGET_IS_WINDOWS)
