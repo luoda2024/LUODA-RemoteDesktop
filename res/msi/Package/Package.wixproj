@@ -4,6 +4,7 @@
     </IncludeSearchPaths>
     <Configurations>Release</Configurations>
     <Platforms>x64</Platforms>
+    <OutputName>LUODA-Setup</OutputName>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Includes.wxi" />
