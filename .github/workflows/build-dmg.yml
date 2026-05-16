@@ -127,7 +127,7 @@ jobs:
           export RUSTFLAGS="-L native=${VCPKG_LIB} -L native=${BREW_LIB}"
           BINDGEN_EXTRA_CLANG_ARGS="-I${VCPKG_INCLUDE} -I${BREW_INCLUDE}" \
           CFLAGS="-I${VCPKG_INCLUDE} -I${BREW_INCLUDE}" \
-          CXXFLAGS="-I${VCPKG_INCLUDE} -I${BREW_INCLUDE}" \
+          CXXFLAGS="-I${VCPKG_INCLUDE} -I${BREW_INCLUDE} -include cstdint" \
           cargo build --release --features flutter
 
       - name: Build Flutter macOS

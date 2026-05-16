@@ -109,6 +109,7 @@ jobs:
         run: cargo build --release --features flutter
         env:
           VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+          CXXFLAGS: "-include cstdint"
 
       - name: Build Flutter Linux
         timeout-minutes: 30
