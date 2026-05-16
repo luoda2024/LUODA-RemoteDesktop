@@ -89,12 +89,14 @@ jobs:
           vcpkg install --triplet x64-windows-static --x-install-root="$env:VCPKG_ROOT\installed"
 
       - name: Build Rust
+        timeout-minutes: 50
         run: cargo build --release --features flutter
         env:
-          VCPKG_ROOT: C:\\vcpkg
+          VCPKG_ROOT: C:\\\\vcpkg
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
 
       - name: Build Flutter Windows
+        timeout-minutes: 15
         run: |
           cd flutter
           flutter clean

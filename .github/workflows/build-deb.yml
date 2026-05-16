@@ -104,11 +104,13 @@ jobs:
           head -5 flutter/lib/generated_bridge.dart || echo "ERROR: Cannot read file!"
 
       - name: Build Rust binary
+        timeout-minutes: 40
         run: cargo build --release --features flutter
         env:
           VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
 
       - name: Build Flutter Linux
+        timeout-minutes: 30
         run: |
           cd flutter
           flutter build linux --release
