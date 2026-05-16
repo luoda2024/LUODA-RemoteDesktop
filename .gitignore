@@ -21,7 +21,7 @@ sciter.dll
 **pdb
 # bridge files are now tracked in git (needed by CI)
 *deb
-luoda
+/luoda
 *.cache
 # appimage
 appimage/AppDir
@@ -57,3 +57,5 @@ libsciter.dylib
 flutter/web/vendor/
 vendor/
 .cargo/config-vendor.toml
+flutter/android/app/*.keystore
+flutter/android/key.properties
