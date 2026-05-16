@@ -60,6 +60,7 @@ jobs:
           VCPKG_DEFAULT_TRIPLET: x86-windows-static
           SODIUM_LIB_DIR: C:\\vcpkg\\installed\\x86-windows-static\\lib
           SODIUM_INC_DIR: C:\\vcpkg\\installed\\x86-windows-static\\include
+          CXXFLAGS: -include cstdint
 
       - name: Build portable packer
         timeout-minutes: 15
