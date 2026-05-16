@@ -111,30 +111,26 @@ jobs:
           choco install rcedit -y
           rcedit "flutter/build/windows/x64/runner/Release/luoda.exe" --set-icon "res/icon.ico"
 
-      - name: Package SFX (自解压+自动运行+无终端)
+      - name: Build InnoSetup installer
         shell: cmd
         run: |
-          mkdir LUODA
-          xcopy /E /I flutter\build\windows\x64\runner\Release\* LUODA\
-          echo ;!@Install@!UTF-8! > config.txt
-          echo RunProgram="luoda.exe" >> config.txt
-          echo GUIMode="2" >> config.txt
-          echo ;!@InstallEnd@! >> config.txt
-          choco install 7zip.install -y --no-progress --force
-          "C:\Program Files\7-Zip\7z.exe" a -sfx LUODA.exe LUODA\* config.txt
-          echo === SFX size ===
-          dir LUODA.exe
-          if not exist LUODA.exe exit /b 1
+          choco install innosetup -y --no-progress --force
+          mkdir dist
+          cd res
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" luoda-setup.iss /O"..\dist"
+          cd ..
+          echo === Installer size ===
+          dir dist\LUODA-Setup.exe
 
       - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: LUODA-EXE
-          path: LUODA.exe
+          path: dist/LUODA-Setup.exe
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
           tag_name: nightly
-          files: LUODA.exe
+          files: dist/LUODA-Setup.exe
