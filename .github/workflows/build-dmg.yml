@@ -39,6 +39,7 @@ jobs:
         run: rustup component add rustfmt
 
       - name: Generate FFI bridge
+        timeout-minutes: 20
         run: |
           echo "=== Installing cargo-expand ==="
           cargo install cargo-expand --version 1.0.95 --locked 2>&1 | tail -5

@@ -55,6 +55,7 @@ jobs:
           cargo --version
 
       - name: Generate FFI bridge
+        timeout-minutes: 20
         shell: bash
         run: |
           export PATH="$HOME/.cargo/bin:$PATH"

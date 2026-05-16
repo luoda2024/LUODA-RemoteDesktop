@@ -112,6 +112,7 @@ jobs:
           echo "VPX_INCLUDE_PATH=$(pwd)/target/vpx-include" >> $GITHUB_ENV
 
       - name: Generate FFI bridge
+        timeout-minutes: 20
         run: |
           cargo install cargo-expand --version 1.0.95 --locked 2>&1 | tail -5
           echo "=== Installing flutter_rust_bridge_codegen ==="
