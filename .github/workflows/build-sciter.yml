@@ -35,13 +35,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: C:\vcpkg\installed
-          key: vcpkg-sciter-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+          key: vcpkg-sciter-v2-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: |
-            vcpkg-sciter-${{ runner.os }}-
+            vcpkg-sciter-v2-${{ runner.os }}-
 
-      - name: Install vcpkg deps (x86)
+      - name: Install vcpkg deps (x86 + x64)
         run: |
           vcpkg install --triplet x86-windows-static --x-install-root="$env:VCPKG_ROOT\installed"
+          vcpkg install --triplet x64-windows-static --x-install-root="$env:VCPKG_ROOT\installed"
 
       - name: Build rustdesk (sciter)
         timeout-minutes: 40
@@ -50,16 +51,13 @@ jobs:
           python3 res/inline-sciter.py
           sed -i 's/branch = "dyn"/branch = "dyn_x86"/g' ./Cargo.toml
           cargo fetch
-          find ~/.cargo/git/checkouts/rust-sciter-*/ -name "lib.rs" -exec sed -i '/#!\[feature(abi_thiscall)\]/d' {} \;
+          find ~/.cargo/git/checkouts/rust-sciter-*/ -name "lib.rs" -exec sed -i '/#\!\[feature(abi_thiscall)\]/d' {} \;
           cargo build --features inline --release --bins --target i686-pc-windows-msvc
           mkdir -p ./Release
           mv ./target/i686-pc-windows-msvc/release/luoda.exe ./Release/luoda.exe
           curl -LJ -o ./Release/sciter.dll https://github.com/c-smile/sciter-sdk/raw/master/bin.win/x32/sciter.dll
         env:
           VCPKG_ROOT: C:\\vcpkg
-          VCPKG_DEFAULT_TRIPLET: x86-windows-static
-          SODIUM_LIB_DIR: C:\\vcpkg\\installed\\x86-windows-static\\lib
-          SODIUM_INC_DIR: C:\\vcpkg\\installed\\x86-windows-static\\include
           CXXFLAGS: -include cstdint
 
       - name: Build portable packer
