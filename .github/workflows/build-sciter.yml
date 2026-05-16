@@ -56,7 +56,7 @@ jobs:
         run: |
           python3 res/inline-sciter.py
           sed -i 's/branch = "dyn"/branch = "dyn_x86"/g' ./Cargo.toml
-          cargo build --features inline,vram,hwcodec --release --bins --target i686-pc-windows-msvc
+          cargo build --features inline --release --bins --target i686-pc-windows-msvc
           mkdir -p ./Release
           mv ./target/i686-pc-windows-msvc/release/rustdesk.exe ./Release/rustdesk.exe
           curl -LJ -o ./Release/sciter.dll https://github.com/c-smile/sciter-sdk/raw/master/bin.win/x32/sciter.dll
