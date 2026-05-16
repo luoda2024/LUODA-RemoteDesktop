@@ -11,6 +11,7 @@ on:
       - 'res/**'
       - 'Cargo.toml'
       - 'Cargo.lock'
+      - 'vcpkg.json'
       - '.github/workflows/build-exe.yml'
 
 jobs:

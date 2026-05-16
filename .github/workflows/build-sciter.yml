@@ -10,6 +10,7 @@ on:
       - 'res/**'
       - 'Cargo.toml'
       - 'Cargo.lock'
+      - 'vcpkg.json'
       - '.github/workflows/build-sciter.yml'
 
 jobs:

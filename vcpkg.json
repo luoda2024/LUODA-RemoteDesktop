@@ -41,6 +41,14 @@
       "host": false
     },
     {
+      "name": "libsodium",
+      "host": true
+    },
+    {
+      "name": "libsodium",
+      "host": false
+    },
+    {
       "name": "libyuv",
       "host": true
     },
