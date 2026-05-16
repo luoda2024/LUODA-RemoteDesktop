@@ -3,10 +3,10 @@
 <plist version="1.0">
     <dict>
         <key>Label</key>
-        <string>com.carriez.LUODA_service</string>
+        <string>com.luoda.remote_service</string>
 
 	<key>AssociatedBundleIdentifiers</key>
-	<string>com.carriez.luoda</string>
+	<string>com.luoda.remote</string>
     
         <key>KeepAlive</key>
         <true/>

@@ -1640,7 +1640,7 @@ pub fn check_process(arg: &str, mut same_uid: bool) -> bool {
         if same_uid && p.user_id() != my_uid {
             continue;
         }
-        // on mac, p.cmd() get "/Applications/LUODA.app/Contents/MacOS/LUODA", "XPC_SERVICE_NAME=com.carriez.LUODA_server"
+        // on mac, p.cmd() get "/Applications/LUODA.app/Contents/MacOS/LUODA", "XPC_SERVICE_NAME=com.luoda.remote_server"
         let parg = if p.cmd().len() <= 1 { "" } else { &p.cmd()[1] };
         if arg.is_empty() {
             if !parg.starts_with("--") {
