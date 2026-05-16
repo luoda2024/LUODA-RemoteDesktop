@@ -224,6 +224,7 @@ jobs:
           grep 'kotlin_version' ./flutter/android/build.gradle || true
 
       - name: Build APK
+        timeout-minutes: 30
         run: |
           cd flutter
           flutter build apk --release --split-per-abi 2>&1 | tail -50
