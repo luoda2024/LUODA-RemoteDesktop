@@ -473,7 +473,7 @@ class ServerModel with ChangeNotifier {
 
   fetchID() async {
     final id = await bind.mainGetMyId();
-    if (id != _serverId.id) {
+    if (id.isNotEmpty && id != _serverId.id) {
       _serverId.id = id;
       notifyListeners();
     }
