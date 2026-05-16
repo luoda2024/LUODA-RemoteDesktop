@@ -21,7 +21,7 @@
 -keep class dev.flutter.** { *; }
 
 # Keep Rust bridge classes
--keep class com.carriez.flutter_hbb.** { *; }
+-keep class com.luoda.remote.** { *; }
 
 # Keep native methods
 -keepclasseswithmembernames class * {
