@@ -1083,7 +1083,11 @@ fn get_api_server_(api: String, custom: String) -> String {
     // fallback: derive API server from default rendezvous server
     let default_rs = config::RENDEZVOUS_SERVERS.first().cloned().unwrap_or("rev.dicad.cn");
     let s = crate::increase_port(default_rs, -2);
-    return format!("http://{}", s);
+    if s == default_rs {
+        return format!("http://{}:{}", s, config::RENDEZVOUS_PORT - 2);
+    } else {
+        return format!("http://{}", s);
+    }
 }
 
 #[inline]
