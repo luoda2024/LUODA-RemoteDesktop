@@ -267,3 +267,13 @@ jobs:
           path: flutter/build/app/outputs/flutter-apk/app-x86_64-release.apk
           if-no-files-found: error
 
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          tag_name: nightly
+          files: |
+            flutter/build/app/outputs/flutter-apk/app-release.apk
+            flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            flutter/build/app/outputs/flutter-apk/app-x86_64-release.apk
+

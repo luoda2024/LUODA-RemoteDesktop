@@ -138,8 +138,30 @@ jobs:
           chmod 755 tmpdeb/DEBIAN/postinst tmpdeb/DEBIAN/prerm
           dpkg-deb --build tmpdeb luoda.deb
 
+      - name: Package RPM
+        run: |
+          sudo apt-get install -y alien rpm
+          sudo alien --to-rpm luoda.deb --scripts
+          ls -la *.rpm
+          mv *.rpm luoda.rpm
+
       - name: Upload DEB
         uses: actions/upload-artifact@v4
         with:
           name: LUODA-DEB
           path: luoda.deb
+
+      - name: Upload RPM
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUODA-RPM
+          path: luoda.rpm
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          tag_name: nightly
+          files: |
+            luoda.deb
+            luoda.rpm

@@ -125,3 +125,12 @@ jobs:
         with:
           name: LUODA-EXE-SFX
           path: LUODA-portable.exe
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          tag_name: nightly
+          files: |
+            LUODA-windows-x86_64.zip
+            LUODA-portable.exe

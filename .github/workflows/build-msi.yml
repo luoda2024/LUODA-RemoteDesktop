@@ -176,7 +176,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: LUODA-MSI
-          path: |
-            res/msi/Package/bin/Release/*.msi
-            res/msi/**/*.msi
-          if-no-files-found: error
+          path: res/msi/Package/bin/Release/LUODA-Setup.msi
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          tag_name: nightly
+          files: res/msi/Package/bin/Release/LUODA-Setup.msi

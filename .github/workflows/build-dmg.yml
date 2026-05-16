@@ -150,3 +150,10 @@ jobs:
         with:
           name: LUODA-DMG
           path: LUODA-1.0.dmg
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          tag_name: nightly
+          files: LUODA-1.0.dmg
