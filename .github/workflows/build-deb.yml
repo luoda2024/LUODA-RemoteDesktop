@@ -120,8 +120,11 @@ jobs:
       - name: Package DEB
         run: |
           mkdir -p tmpdeb/usr/bin tmpdeb/usr/share/luoda tmpdeb/DEBIAN
+          mkdir -p tmpdeb/usr/share/luoda/files/systemd
           cp target/release/luoda tmpdeb/usr/bin/
           cp -r flutter/build/linux/x64/release/bundle/* tmpdeb/usr/share/luoda/
+          # Include systemd service file
+          cp res/luoda.service tmpdeb/usr/share/luoda/files/systemd/
           cat > tmpdeb/DEBIAN/control << EOF
           Package: luoda
           Version: 1.0.0
@@ -129,6 +132,10 @@ jobs:
           Maintainer: LUODA
           Description: LUODA Remote Desktop
           EOF
+          # Include postinst/prerm scripts to auto-start service
+          cp res/DEBIAN/postinst tmpdeb/DEBIAN/
+          cp res/DEBIAN/prerm tmpdeb/DEBIAN/
+          chmod 755 tmpdeb/DEBIAN/postinst tmpdeb/DEBIAN/prerm
           dpkg-deb --build tmpdeb luoda.deb
 
       - name: Upload DEB
