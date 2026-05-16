@@ -218,9 +218,7 @@ jobs:
               }
           }
           KOTLIN_FIX
-          # Replace release signing with debug (fallback to default Android debug keystore)
-          sed -i "s/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g" ./flutter/android/app/build.gradle
-          # Verify the change took effect
+          # Verify build.gradle signing config
           grep -n 'signingConfig' ./flutter/android/app/build.gradle || true
           grep 'kotlin_version' ./flutter/android/build.gradle || true
 
