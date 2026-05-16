@@ -2,16 +2,8 @@ name: Build LUODA Windows Sciter (32-bit Portable)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [master]
-    paths:
-      - 'src/**'
-      - 'libs/**'
-      - 'res/**'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
-      - 'vcpkg.json'
-      - '.github/workflows/build-sciter.yml'
+  # push trigger removed: Sciter UI deprecated by upstream, build broken
+  # Re-enable when sciter support is restored
 
 jobs:
   build-sciter:
