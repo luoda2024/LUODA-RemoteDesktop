@@ -53,7 +53,7 @@ jobs:
           find ~/.cargo/git/checkouts/rust-sciter-*/ -name "lib.rs" -exec sed -i '/#!\[feature(abi_thiscall)\]/d' {} \;
           cargo build --features inline --release --bins --target i686-pc-windows-msvc
           mkdir -p ./Release
-          mv ./target/i686-pc-windows-msvc/release/rustdesk.exe ./Release/rustdesk.exe
+          mv ./target/i686-pc-windows-msvc/release/luoda.exe ./Release/luoda.exe
           curl -LJ -o ./Release/sciter.dll https://github.com/c-smile/sciter-sdk/raw/master/bin.win/x32/sciter.dll
         env:
           VCPKG_ROOT: C:\\vcpkg
@@ -67,7 +67,7 @@ jobs:
         run: |
           pip3 install brotli
           cd libs/portable
-          python3 generate.py -f ../../Release/ -o . -e ../../Release/rustdesk.exe -t i686-pc-windows-msvc
+          python3 generate.py -f ../../Release/ -o . -e ../../Release/luoda.exe -t i686-pc-windows-msvc
           mkdir -p ../../SignOutput
           mv ./target/i686-pc-windows-msvc/release/luoda-portable-packer.exe ../../SignOutput/LUODA-portable-x86-sciter.exe
 
