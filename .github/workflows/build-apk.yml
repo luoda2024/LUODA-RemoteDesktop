@@ -224,22 +224,34 @@ jobs:
           grep -n 'signingConfig' ./flutter/android/app/build.gradle || true
           grep 'kotlin_version' ./flutter/android/build.gradle || true
 
-      - name: Build APK
+
+      - name: Build APK (split per ABI)
         timeout-minutes: 30
         run: |
           cd flutter
           flutter build apk --release --split-per-abi 2>&1 | tail -50
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096M -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError"
+
+      - name: Build APK (universal)
+        timeout-minutes: 15
+        run: |
+          cd flutter
+          flutter build apk --release 2>&1 | tail -50
 
       - name: Verify APK exists
         run: |
+          echo "=== Universal APK ==="
+          ls -la flutter/build/app/outputs/flutter-apk/app-release.apk
+          echo "universal APK size: $(stat -c%s flutter/build/app/outputs/flutter-apk/app-release.apk) bytes"
           echo "=== Per-ABI APKs ==="
           ls -la flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
           ls -la flutter/build/app/outputs/flutter-apk/app-x86_64-release.apk
-          echo "arm64 APK size: $(stat -c%s flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk) bytes"
-          echo "x86_64 APK size: $(stat -c%s flutter/build/app/outputs/flutter-apk/app-x86_64-release.apk) bytes"
+
+      - name: Upload APK (universal)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUODA-APK-universal
+          path: flutter/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
 
       - name: Upload APK (arm64)
         uses: actions/upload-artifact@v4
@@ -254,3 +266,4 @@ jobs:
           name: LUODA-APK-x86_64
           path: flutter/build/app/outputs/flutter-apk/app-x86_64-release.apk
           if-no-files-found: error
+

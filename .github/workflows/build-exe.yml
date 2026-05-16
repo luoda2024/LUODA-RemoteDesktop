@@ -91,7 +91,9 @@ jobs:
 
       - name: Build Rust
         timeout-minutes: 50
-        run: cargo build --release --features flutter
+        run: |
+          cargo clean
+          cargo build --release --features flutter
         env:
           VCPKG_ROOT: C:\\\\vcpkg
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
@@ -108,9 +110,18 @@ jobs:
           mkdir LUODA
           xcopy /E /I flutter\build\windows\x64\runner\Release\* LUODA\
           Compress-Archive -Path LUODA\* -DestinationPath LUODA-windows-x86_64.zip
+          # Create self-extracting EXE
+          choco install 7zip -y
+          7z a -sfx LUODA-portable.exe LUODA\*
 
-      - name: Upload EXE
+      - name: Upload EXE (portable ZIP)
         uses: actions/upload-artifact@v4
         with:
           name: LUODA-EXE
           path: LUODA-windows-x86_64.zip
+
+      - name: Upload EXE (single SFX)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUODA-EXE-SFX
+          path: LUODA-portable.exe
