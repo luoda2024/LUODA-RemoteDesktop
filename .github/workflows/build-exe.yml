@@ -112,6 +112,7 @@ jobs:
           rcedit "flutter/build/windows/x64/runner/Release/luoda.exe" --set-icon "res/icon.ico"
 
       - name: Package SFX (自解压+自动运行+无终端)
+        shell: cmd
         run: |
           mkdir LUODA
           xcopy /E /I flutter\build\windows\x64\runner\Release\* LUODA\
@@ -119,11 +120,11 @@ jobs:
           echo RunProgram="luoda.exe" >> config.txt
           echo GUIMode="2" >> config.txt
           echo ;!@InstallEnd@! >> config.txt
-          choco install 7zip -y
-          copy "C:\Program Files\7-Zip\7z.sfx" 7z.sfx
-          7z a -sfx7z.sfx -m0=Copy LUODA.exe LUODA\* config.txt
-          echo "=== SFX size ===" 
+          choco install 7zip.install -y --no-progress --force
+          "C:\Program Files\7-Zip\7z.exe" a -sfx LUODA.exe LUODA\* config.txt
+          echo === SFX size ===
           dir LUODA.exe
+          if not exist LUODA.exe exit /b 1
 
       - name: Upload EXE
         uses: actions/upload-artifact@v4
