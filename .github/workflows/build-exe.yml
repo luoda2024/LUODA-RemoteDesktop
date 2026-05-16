@@ -105,32 +105,23 @@ jobs:
           flutter clean
           flutter build windows --release
 
-      - name: Package EXE
+      - name: Package EXE (独立单文件)
         run: |
           mkdir LUODA
           xcopy /E /I flutter\build\windows\x64\runner\Release\* LUODA\
-          Compress-Archive -Path LUODA\* -DestinationPath LUODA-windows-x86_64.zip
-          # Create self-extracting EXE
+          # Create standalone self-extracting EXE (no ZIP)
           choco install 7zip -y
-          7z a -sfx LUODA-portable.exe LUODA\*
+          7z a -sfx LUODA.exe LUODA\*
 
-      - name: Upload EXE (portable ZIP)
+      - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: LUODA-EXE
-          path: LUODA-windows-x86_64.zip
-
-      - name: Upload EXE (single SFX)
-        uses: actions/upload-artifact@v4
-        with:
-          name: LUODA-EXE-SFX
-          path: LUODA-portable.exe
+          path: LUODA.exe
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
           tag_name: nightly
-          files: |
-            LUODA-windows-x86_64.zip
-            LUODA-portable.exe
+          files: LUODA.exe
