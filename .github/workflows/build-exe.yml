@@ -105,13 +105,25 @@ jobs:
           flutter clean
           flutter build windows --release
 
-      - name: Package EXE (独立单文件)
+      - name: Sign luoda.exe with LUODA icon
+        shell: bash
+        run: |
+          choco install rcedit -y
+          rcedit "flutter/build/windows/x64/runner/Release/luoda.exe" --set-icon "res/icon.ico"
+
+      - name: Package SFX (自解压+自动运行+无终端)
         run: |
           mkdir LUODA
           xcopy /E /I flutter\build\windows\x64\runner\Release\* LUODA\
-          # Create standalone self-extracting EXE (no ZIP)
+          echo ;!@Install@!UTF-8! > config.txt
+          echo RunProgram="luoda.exe" >> config.txt
+          echo GUIMode="2" >> config.txt
+          echo ;!@InstallEnd@! >> config.txt
           choco install 7zip -y
-          7z a -sfx LUODA.exe LUODA\*
+          copy "C:\Program Files\7-Zip\7z.sfx" 7z.sfx
+          7z a -sfx7z.sfx -m0=Copy LUODA.exe LUODA\* config.txt
+          echo "=== SFX size ===" 
+          dir LUODA.exe
 
       - name: Upload EXE
         uses: actions/upload-artifact@v4
