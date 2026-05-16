@@ -1080,7 +1080,10 @@ fn get_api_server_(api: String, custom: String) -> String {
             return format!("http://{}", s);
         }
     }
-    "https://admin.dicad.cn".to_owned()
+    // fallback: derive API server from default rendezvous server
+    let default_rs = config::RENDEZVOUS_SERVERS.first().cloned().unwrap_or("rev.dicad.cn");
+    let s = crate::increase_port(default_rs, -2);
+    return format!("http://{}", s);
 }
 
 #[inline]
