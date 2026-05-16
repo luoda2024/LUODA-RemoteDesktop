@@ -265,13 +265,22 @@ jobs:
           path: flutter/build/app/outputs/flutter-apk/app-x86_64-release.apk
           if-no-files-found: error
 
+      - name: Rename APKs for Release
+        run: |
+          cd flutter/build/app/outputs/flutter-apk
+          mv app-release.apk LUODA-universal.apk
+          mv app-arm64-v8a-release.apk LUODA-arm64-v8a.apk
+          mv app-x86_64-release.apk LUODA-x86_64.apk
+          ls -la LUODA-*.apk
+          cd -
+
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
           tag_name: nightly
           files: |
-            flutter/build/app/outputs/flutter-apk/app-release.apk
-            flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            flutter/build/app/outputs/flutter-apk/app-x86_64-release.apk
+            flutter/build/app/outputs/flutter-apk/LUODA-universal.apk
+            flutter/build/app/outputs/flutter-apk/LUODA-arm64-v8a.apk
+            flutter/build/app/outputs/flutter-apk/LUODA-x86_64.apk
 
