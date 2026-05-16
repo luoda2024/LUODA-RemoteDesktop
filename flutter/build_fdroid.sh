@@ -465,8 +465,8 @@ build)
 
 	mkdir -p "flutter/android/app/src/main/jniLibs/${ANDROID_ABI}"
 
-	cp "target/${RUST_TARGET}/release/libluoda.so" \
-		"flutter/android/app/src/main/jniLibs/${ANDROID_ABI}/libluoda.so"
+	cp "target/${RUST_TARGET}/release/libluoda_core.so" \
+		"flutter/android/app/src/main/jniLibs/${ANDROID_ABI}/libluoda_core.so"
 
 	cp "${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${NDK_TARGET}/libc++_shared.so" \
 		"flutter/android/app/src/main/jniLibs/${ANDROID_ABI}/"

@@ -9,7 +9,7 @@ import com.luoda.remote.RdClipboardManager
 
 object FFI {
     init {
-        System.loadLibrary("luoda")
+        System.loadLibrary("luoda_core")
     }
 
     external fun init(ctx: Context)

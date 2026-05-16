@@ -118,11 +118,11 @@ class PlatformFFI {
   Future<void> init(String appType) async {
     _appType = appType;
     final dylib = isAndroid
-        ? DynamicLibrary.open('libluoda.so')
+        ? DynamicLibrary.open('libluoda_core.so')
         : isLinux
-            ? DynamicLibrary.open('libluoda.so')
+            ? DynamicLibrary.open('libluoda_core.so')
             : isWindows
-                ? DynamicLibrary.open('luoda.dll')
+                ? DynamicLibrary.open('luoda_core.dll')
                 :
                 // Use executable itself as the dynamic library for MacOS.
                 // Multiple dylib instances will cause some global instances to be invalid.

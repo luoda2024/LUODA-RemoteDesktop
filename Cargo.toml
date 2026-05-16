@@ -9,7 +9,7 @@ default-run = "luoda"
 rust-version = "1.75"
 
 [lib]
-name = "luoda"
+name = "luoda_core"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [[bin]]
