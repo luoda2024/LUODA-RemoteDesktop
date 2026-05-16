@@ -85,7 +85,7 @@ def make_parser():
         "-m",
         "--manufacturer",
         type=str,
-        default="PURSLANE",
+        default="LUODA",
         help="The app manufacturer.",
     )
     return parser

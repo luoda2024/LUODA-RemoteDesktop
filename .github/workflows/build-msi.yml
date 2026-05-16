@@ -133,7 +133,7 @@ jobs:
         shell: cmd
         run: |
           cd res\msi
-          python preprocess.py
+          python preprocess.py -m LUODA
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
