@@ -283,6 +283,8 @@ pub enum Data {
     Theme(String),
     Language(String),
     CloseAllConnections,
+    Empty,
+    Disconnected,
     DataPortableService(DataPortableService),
     SwitchSidesRequest(String),
     SwitchSidesBack,
