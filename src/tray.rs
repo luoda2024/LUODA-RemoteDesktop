@@ -59,14 +59,15 @@ fn make_tray() -> hbb_common::ResultType<()> {
     ) == "Y";
     // The tray icon is only shown when the service is running, so we don't need to check
     // the `stop-service` option here.
-    let quit_i = if !hide_stop_service {
-        Some(MenuItem::new(translate("Stop service".to_owned()), true, None))
+    let disconnect_i = if !hide_stop_service {
+        Some(MenuItem::new(translate("Disconnect".to_owned()), true, None))
     } else {
         None
     };
     let open_i = MenuItem::new(translate("Open".to_owned()), true, None);
-    if let Some(quit_i) = &quit_i {
-        tray_menu.append_items(&[&open_i, quit_i]).ok();
+    let exit_i = MenuItem::new(translate("Exit".to_owned()), true, None);
+    if let Some(disconnect_i) = &disconnect_i {
+        tray_menu.append_items(&[&open_i, disconnect_i, &exit_i]).ok();
     } else {
         tray_menu.append_items(&[&open_i]).ok();
     }
@@ -168,20 +169,27 @@ fn make_tray() -> hbb_common::ResultType<()> {
         }
 
         if let Ok(event) = menu_channel.try_recv() {
-            if let Some(quit_i) = &quit_i {
-                if event.id == quit_i.id() {
-                    /* failed in windows, seems no permission to check system process
-                    if !crate::check_process("--server", false) {
-                        *control_flow = ControlFlow::Exit;
-                        return;
+            if let Some(disconnect_i) = &disconnect_i {
+                if event.id == disconnect_i.id() {
+                    #[cfg(windows)]
+                    {
+                        // Send CloseAllConnections to server via IPC
+                        std::thread::spawn(|| {
+                            let rt = tokio::runtime::Runtime::new().unwrap();
+                            rt.block_on(async {
+                                if let Ok(mut conn) = crate::ipc::connect(1000, "").await {
+                                    conn.send(&Data::CloseAllConnections).await.ok();
+                                }
+                            });
+                        });
                     }
-                    */
-                    if !crate::platform::uninstall_service(false, false) {
-                        *control_flow = ControlFlow::Exit;
-                    }
+                } else if event.id == exit_i.id() {
+                    *control_flow = ControlFlow::Exit;
                 } else if event.id == open_i.id() {
                     open_func();
                 }
+            } else if event.id == exit_i.id() {
+                *control_flow = ControlFlow::Exit;
             } else if event.id == open_i.id() {
                 open_func();
             }

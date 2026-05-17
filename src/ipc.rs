@@ -281,8 +281,7 @@ pub enum Data {
     Control(DataControl),
     Theme(String),
     Language(String),
-    Empty,
-    Disconnected,
+    CloseAllConnections,
     DataPortableService(DataPortableService),
     SwitchSidesRequest(String),
     SwitchSidesBack,
@@ -572,6 +571,12 @@ async fn handle(data: Data, stream: &mut Connection) {
                     crate::platform::quit_gui();
                 }
                 std::process::exit(-1); // to make sure --server luauchagent process can restart because SuccessfulExit used
+            }
+        }
+        Data::CloseAllConnections => {
+            log::info!("Closing all connections via IPC");
+            if let Some(server) = crate::server::CLIENT_SERVER.read().unwrap().as_ref() {
+                server.write().unwrap().close_connections();
             }
         }
         Data::OnlineStatus(_) => {
