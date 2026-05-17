@@ -114,26 +114,29 @@ jobs:
           choco install rcedit -y
           rcedit "flutter/build/windows/x64/runner/Release/luoda.exe" --set-icon "res/icon.ico"
 
-      - name: Build InnoSetup installer
-        shell: cmd
+      - name: Package portable EXE
+        shell: pwsh
         run: |
-          choco install innosetup -y --no-progress --force
-          mkdir dist
-          cd res
-          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" luoda-setup.iss /O"..\dist"
-          cd ..
-          echo === Installer size ===
-          dir dist\LUODA-Setup.exe
+          $srcDir = "flutter\\build\\windows\\x64\\runner\\Release"
+          $distDir = "dist\\LUODA"
+          mkdir $distDir -Force
+          Copy-Item -Path "$srcDir\\*" -Destination $distDir -Recurse -Force
+          echo "=== Portable directory contents ==="
+          dir $distDir
+          echo "=== Creating zip ==="
+          Compress-Archive -Path $distDir -DestinationPath dist\\LUODA-portable.zip -Force
+          echo "=== Zip size ==="
+          dir dist\\LUODA-portable.zip
 
       - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: LUODA-EXE
-          path: dist/LUODA-Setup.exe
+          path: dist/LUODA-portable.zip
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
           tag_name: nightly
-          files: dist/LUODA-Setup.exe
+          files: dist/LUODA-portable.zip
