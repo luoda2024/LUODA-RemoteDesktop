@@ -252,6 +252,7 @@ pub enum Data {
     MouseMoveTime(i64),
     Authorize,
     Close,
+    Disconnected,
     #[cfg(windows)]
     SAS,
     UserSid(Option<u32>),
@@ -575,9 +576,7 @@ async fn handle(data: Data, stream: &mut Connection) {
         }
         Data::CloseAllConnections => {
             log::info!("Closing all connections via IPC");
-            if let Some(server) = crate::server::CLIENT_SERVER.read().unwrap().as_ref() {
-                server.write().unwrap().close_connections();
-            }
+            crate::server::CLIENT_SERVER.write().unwrap().close_connections();
         }
         Data::OnlineStatus(_) => {
             let x = config::get_online_state();
