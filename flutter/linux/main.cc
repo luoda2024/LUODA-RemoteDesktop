@@ -1,7 +1,7 @@
 #include <dlfcn.h>
 #include "my_application.h"
 
-#define RUSTDESK_LIB_PATH "libluoda.so"
+#define RUSTDESK_LIB_PATH "libluoda_core.so"
 typedef bool (*LUODACoreMain)();
 bool gIsConnectionManager = false;
 
@@ -10,7 +10,7 @@ void print_help_install_pkg(const char* so);
 bool flutter_luoda_core_main() {
    void* libluoda = dlopen(RUSTDESK_LIB_PATH, RTLD_LAZY);
    if (!libluoda) {
-      fprintf(stderr,"Failed to load \"libluoda.so\"\n");
+      fprintf(stderr,"Failed to load \"libluoda_core.so\"\n");
       char* error;
       if ((error = dlerror()) != nullptr) {
         fprintf(stderr, "%s\n", error);
