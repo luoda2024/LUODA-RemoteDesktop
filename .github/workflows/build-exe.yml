@@ -114,29 +114,35 @@ jobs:
           choco install rcedit -y
           rcedit "flutter/build/windows/x64/runner/Release/luoda.exe" --set-icon "res/icon.ico"
 
-      - name: Package portable EXE
-        shell: pwsh
+      - name: Package portable EXE (single file)
+        shell: bash
         run: |
-          $srcDir = "flutter\\build\\windows\\x64\\runner\\Release"
-          $distDir = "dist\\LUODA"
-          mkdir $distDir -Force
-          Copy-Item -Path "$srcDir\\*" -Destination $distDir -Recurse -Force
-          echo "=== Portable directory contents ==="
-          dir $distDir
-          echo "=== Creating zip ==="
-          Compress-Archive -Path $distDir -DestinationPath dist\\LUODA-portable.zip -Force
-          echo "=== Zip size ==="
-          dir dist\\LUODA-portable.zip
+          # Copy all Flutter build files to Release/
+          mkdir -p Release
+          cp -r flutter/build/windows/x64/runner/Release/* Release/
+          echo "=== Release directory ==="
+          ls -la Release/
+          # Install brotli for portable packer
+          pip3 install brotli
+          # Run portable packer to create single self-contained EXE
+          cd libs/portable
+          python3 generate.py -f ../../Release/ -o . -e ../../Release/luoda.exe -t x86_64-pc-windows-msvc
+          cd ../..
+          mkdir -p SignOutput
+          # Copy the packed EXE
+          cp libs/portable/target/x86_64-pc-windows-msvc/release/luoda-portable-packer.exe SignOutput/LUODA-portable.exe
+          echo "=== Final portable EXE ==="
+          ls -la SignOutput/LUODA-portable.exe
 
       - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: LUODA-EXE
-          path: dist/LUODA-portable.zip
+          path: SignOutput/LUODA-portable.exe
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
           tag_name: nightly
-          files: dist/LUODA-portable.zip
+          files: SignOutput/LUODA-portable.exe
