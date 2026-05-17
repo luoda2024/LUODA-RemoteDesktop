@@ -284,7 +284,6 @@ pub enum Data {
     Language(String),
     CloseAllConnections,
     Empty,
-    Disconnected,
     DataPortableService(DataPortableService),
     SwitchSidesRequest(String),
     SwitchSidesBack,
