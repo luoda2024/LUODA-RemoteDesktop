@@ -31,9 +31,7 @@ LUODA, herkesin katkısına açıktır. Başlamak için [CONTRIBUTING.md](CONTRI
 
 [**NIGHTLY DERLEME**](https://github.com/luoda/luoda/releases/tag/nightly)
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-    alt="F-Droid'de Alın"
-    height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
+<!-- F-Droid listing pending for LUODA: [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="F-Droid'de Alın" height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb) -->
 
 ## Gereksinimler
 

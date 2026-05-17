@@ -27,9 +27,7 @@ LUODA mengajak semua orang untuk ikut berkontribusi. Lihat [`docs/CONTRIBUTING-I
 
 [**NIGHTLY BUILD**](https://github.com/luoda/luoda/releases/tag/nightly)
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-    alt="Get it on F-Droid"
-    height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
+<!-- F-Droid listing pending for LUODA: [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb) -->
 
 ## Dependensi
 

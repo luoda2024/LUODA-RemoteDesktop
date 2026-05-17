@@ -23,9 +23,7 @@ LUODA verwelkomt bijdragen van iedereen. Zie [`docs/CONTRIBUTING.md`](CONTRIBUTI
 
 [**NIGHTLY BUILD**](https://github.com/luoda/luoda/releases/tag/nightly) (meest recente build)
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-    alt="Download het op F-Droid"
-    height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
+<!-- F-Droid listing pending for LUODA: [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Download het op F-Droid" height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb) -->
 
 ## Afhankelijkheden
 

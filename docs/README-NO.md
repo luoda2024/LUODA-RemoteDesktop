@@ -25,9 +25,7 @@ LUODA er velkommen for bidrag fra alle. Se [CONTRIBUTING.md](CONTRIBUTING-NO.md)
 
 [**NIGHTLY BUILD**](https://github.com/luoda/luoda/releases/tag/nightly)
 
-[<img src="https://f-droid.org/badge/get-it-on.png"
-    alt="Få det på F-Droid"
-    height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
+<!-- F-Droid listing pending for LUODA: [<img src="https://f-droid.org/badge/get-it-on.png" alt="Få det på F-Droid" height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb) -->
 [<img src="https://flathub.org/api/badge?svg&locale=en"
     alt="Få det på Flathub"
     height="80">](https://flathub.org/apps/com.luoda.LUODA)

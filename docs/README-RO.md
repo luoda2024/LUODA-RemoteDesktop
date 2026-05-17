@@ -29,9 +29,7 @@ LUODA primește contribuții de la oricine. Vezi [CONTRIBUTING.md](../docs/CONTR
 
 [**BUILD NIGHTLY**](https://github.com/luoda/luoda/releases/tag/nightly)
 
-[<img src="https://f-droid.org/badge/get-it-on.png"
-    alt="Get it on F-Droid"
-    height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
+<!-- F-Droid listing pending for LUODA: [<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb) -->
 [<img src="https://flathub.org/api/badge?svg&locale=en"
     alt="Get it on Flathub"
     height="80">](https://flathub.org/apps/com.luoda.LUODA)

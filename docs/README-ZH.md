@@ -30,9 +30,7 @@ LUODA 期待各位的贡献. 如何参与开发? 详情请看 [CONTRIBUTING-ZH.m
 
 [**NIGHTLY BUILD**](https://github.com/luoda/luoda/releases/tag/nightly)
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-    alt="Get it on F-Droid"
-    height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
+<!-- F-Droid listing pending for LUODA: [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb) -->
 
 ## 依赖
 

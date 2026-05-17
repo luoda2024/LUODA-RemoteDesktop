@@ -23,9 +23,7 @@ A LUODA szívesen fogad minden contributiont, támogatást mindenkitől. Lásd a
 
 [**BINARY LELTÖLTÉS**](https://github.com/luoda/luoda/releases)
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-    alt="Get it on F-Droid"
-    height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
+<!-- F-Droid listing pending for LUODA: [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb) -->
 
 ## Dependencies
 

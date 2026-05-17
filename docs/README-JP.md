@@ -26,9 +26,7 @@ LUODAは皆さんの貢献を歓迎します。
 
 [**ナイトリービルド**](https://github.com/luoda/luoda/releases/tag/nightly)
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-    alt="F-Droidで入手する"
-    height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
+<!-- F-Droid listing pending for LUODA: [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="F-Droidで入手する" height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb) -->
 
 ## 依存関係
 
