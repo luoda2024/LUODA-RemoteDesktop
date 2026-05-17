@@ -90,26 +90,13 @@ jobs:
 
       - name: Setup opus headers for Android build
         run: |
-          OPUS_INCLUDE=$(pwd)/target/opus-include/opus
-          mkdir -p $OPUS_INCLUDE
-          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus.h -O $OPUS_INCLUDE/opus.h
-          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_multistream.h -O $OPUS_INCLUDE/opus_multistream.h
-          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_defines.h -O $OPUS_INCLUDE/opus_defines.h
-          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_types.h -O $OPUS_INCLUDE/opus_types.h
-          wget -q https://raw.githubusercontent.com/xiph/opus/master/include/opus_projection.h -O $OPUS_INCLUDE/opus_projection.h
-          ls -la $OPUS_INCLUDE/
-          echo "OPUS_INCLUDE_PATH=$(pwd)/target/opus-include" >> $GITHUB_ENV
+          OPUS_INCLUDE=$(pwd)/res/android/opus
+          echo "OPUS_INCLUDE_PATH=$(pwd)/res/android" >> $GITHUB_ENV
 
       - name: Setup vpx headers for Android build
         run: |
-          VPX_INCLUDE=$(pwd)/target/vpx-include/vpx
-          mkdir -p $VPX_INCLUDE
-          BASE_URL="https://raw.githubusercontent.com/webmproject/libvpx/main/vpx"
-          for f in vp8.h vp8cx.h vp8dx.h vpx_codec.h vpx_decoder.h vpx_encoder.h vpx_image.h vpx_integer.h vpx_ext_ratectrl.h vpx_tpl.h vpx_frame_buffer.h; do
-            wget -q "$BASE_URL/$f" -O "$VPX_INCLUDE/$f" || echo "WARN: failed to download $f"
-          done
-          ls -la $VPX_INCLUDE/
-          echo "VPX_INCLUDE_PATH=$(pwd)/target/vpx-include" >> $GITHUB_ENV
+          VPX_INCLUDE=$(pwd)/res/android/vpx
+          echo "VPX_INCLUDE_PATH=$(pwd)/res/android" >> $GITHUB_ENV
 
       - name: Generate FFI bridge
         timeout-minutes: 20

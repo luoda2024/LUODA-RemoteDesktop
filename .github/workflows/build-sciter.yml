@@ -55,7 +55,7 @@ jobs:
           cargo build --features inline --release --bins --target i686-pc-windows-msvc
           mkdir -p ./Release
           mv ./target/i686-pc-windows-msvc/release/luoda.exe ./Release/luoda.exe
-          curl -LJ -o ./Release/sciter.dll https://github.com/c-smile/sciter-sdk/raw/master/bin.win/x32/sciter.dll
+          cp ./res/sciter.dll ./Release/sciter.dll
         env:
           VCPKG_ROOT: C:\\vcpkg
           CXXFLAGS: -include cstdint
