@@ -1,4 +1,4 @@
-use luoda::*;
+use luoda_core::*;
 
 #[cfg(not(target_os = "macos"))]
 fn main() {}

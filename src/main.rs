@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use luoda::*;
+use luoda_core::*;
 
 // CI trigger: Rust toolchain bumped to 1.88, i686 nightly→stable fix applied (2026-05-15)
 
