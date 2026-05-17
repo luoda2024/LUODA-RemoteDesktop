@@ -2,6 +2,8 @@
 
 import os
 import optparse
+import subprocess
+import sys
 from hashlib import md5
 import brotli
 import datetime
@@ -18,6 +20,8 @@ def generate_md5_table(folder: str, level) -> dict:
     res: dict = dict()
     curdir = os.curdir
     os.chdir(folder)
+    total_files = 0
+    total_size = 0
     for root, _, files in os.walk('.'):
         # remove ./
         for f in files:
@@ -31,12 +35,29 @@ def generate_md5_table(folder: str, level) -> dict:
             md5_generator.update(content)
             md5_code = md5_generator.hexdigest().encode(encoding=encoding)
             res[full_path] = (content_compressed, md5_code)
+            total_files += 1
+            total_size += len(content)
+            f.close()
     os.chdir(curdir)
+    print(f"=== MD5 table generation complete: {total_files} files, {total_size} bytes ===")
     return res
 
 
 def write_package_metadata(md5_table: dict, output_folder: str, exe: str):
     output_path = os.path.join(output_folder, "data.bin")
+    print("=== Writing package metadata ===")
+    print("Output path: " + output_path)
+    print("Number of files: " + str(len(md5_table)))
+    total_uncompressed = 0
+    total_compressed = 0
+    for path in md5_table.keys():
+        (compressed_data, md5_code) = md5_table[path]
+        total_uncompressed += len(compressed_data)
+        md5_table_entry = md5_table[path]
+        total_compressed += len(md5_table_entry[0])
+    print(f"Total uncompressed: {total_uncompressed} bytes")
+    print(f"Total compressed: {total_compressed} bytes")
+    print(f"Compression ratio: {total_uncompressed / max(total_compressed, 1):.2f}x")
     with open(output_path, "wb") as f:
         f.write("LUODA".encode(encoding=encoding))
         for path in md5_table.keys():
@@ -56,7 +77,10 @@ def write_package_metadata(md5_table: dict, output_folder: str, exe: str):
         f.write("LUODA".encode(encoding=encoding))
         # executable
         f.write(exe.encode(encoding='utf-8'))
-    print(f"Metadata has been written to {output_path}")
+    file_size = os.path.getsize(output_path)
+    print(f"Metadata has been written to {output_path} ({file_size} bytes)")
+    if file_size < 1000:
+        print("WARNING: data.bin is very small, likely incorrect!")
 
 def write_app_metadata(output_folder: str):
     output_path = os.path.join(output_folder, "app_metadata.toml")
@@ -66,10 +90,20 @@ def write_app_metadata(output_folder: str):
 
 def build_portable(output_folder: str, target: str):
     os.chdir(output_folder)
+    cmd = ["cargo", "build", "--release"]
     if target:
-        os.system("cargo build --release --target " + target)
-    else:
-        os.system("cargo build --release")
+        cmd += ["--target", target]
+    print("=== Building portable packer ===")
+    print("Working dir: " + os.getcwd())
+    print("Command: " + " ".join(cmd))
+    print("cargo version: ", end="")
+    subprocess.run(["cargo", "--version"], check=False)
+    sys.stdout.flush()
+    ret = subprocess.run(cmd)
+    if ret.returncode != 0:
+        print("=== CARGO BUILD FAILED with exit code " + str(ret.returncode) + " ===")
+        sys.exit(ret.returncode)
+    print("=== Portable packer build complete ===")
 
 # Linux: python3 generate.py -f ../luoda-portable-packer/test -o . -e ./test/main.py
 # Windows: python3 .\generate.py -f ..\luoda\flutter\build\windows\runner\Debug\ -o . -e ..\luoda\flutter\build\windows\runner\Debug\luoda.exe
